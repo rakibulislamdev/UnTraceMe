@@ -1,0 +1,250 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Lenis Recommended Core CSS */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Custom Scrollbar - High Priority Universal Styling */
+html, body, * {
+  scrollbar-width: thin !important;
+  scrollbar-color: #a1a1aa transparent !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 9999px !important;
+  border: 2px solid transparent !important;
+  background-clip: content-box !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+  background-clip: content-box !important;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155 !important;
+  background-clip: content-box !important;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569 !important;
+  background-clip: content-box !important;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Surfaces - Slate/Zinc inspired subtle warmth */
+  --background: #fafafc;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+
+  /* Primary Brand - Refined Electric Indigo/Violet */
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+
+  /* Secondary & Muted */
+  --secondary: #f4f4f7;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f7;
+  --muted-foreground: #71717a;
+
+  /* Accent & Status */
+  --accent: #eef2ff;
+  --accent-foreground: #4338ca;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #10b981;
+  --warning: #f59e0b;
+
+  /* Borders & Controls */
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #6366f1;
+
+  /* Radii */
+  --radius: 0.625rem;
+
+  /* Ad container tokens */
+  --ad-bg: #f8fafc;
+  --ad-border: #e2e8f0;
+}
+
+.dark {
+  /* Deep Slate/Zinc intentional dark mode - Linear/Raycast style */
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: #111115;
+  --card-foreground: #f4f4f5;
+  --popover: #111115;
+  --popover-foreground: #f4f4f5;
+
+  /* Primary Brand in Dark */
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+
+  /* Secondary & Muted */
+  --secondary: #18181d;
+  --secondary-foreground: #f4f4f5;
+  --muted: #18181d;
+  --muted-foreground: #a1a1aa;
+
+  /* Accent & Status */
+  --accent: #1e1b4b;
+  --accent-foreground: #a5b4fc;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fef2f2;
+  --success: #059669;
+  --warning: #d97706;
+
+  /* Hairline Borders & Controls */
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #818cf8;
+
+  /* Ad tokens in Dark */
+  --ad-bg: #0d0d12;
+  --ad-border: rgba(255, 255, 255, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-full: 9999px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@keyframes claude-dot {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-3.5px);
+    opacity: 1;
+  }
+}
+
+@keyframes claude-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-claude-dot-1 {
+  animation: claude-dot 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-claude-dot-2 {
+  animation: claude-dot 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.2s;
+}
+
+.animate-claude-dot-3 {
+  animation: claude-dot 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.4s;
+}
+
+.animate-claude-shimmer {
+  background: linear-gradient(
+    90deg,
+    currentColor 0%,
+    rgba(255, 255, 255, 0.9) 50%,
+    currentColor 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: claude-shimmer 2s linear infinite;
+}
+
+/* Custom Minimalist Scrollbar (Mac/Linear Style) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Firefox standard support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
