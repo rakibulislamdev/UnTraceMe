@@ -79,12 +79,12 @@ export function SanitizeActions({
 
       {/* Export Format Selector & Batch Download */}
       <div className="flex flex-wrap items-center gap-3">
-        {/* Apple-style Segmented Glass Tab Container for Export Formats */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium select-none">
+        {/* Compact Segmented Tab Container for Export Formats with Smooth Animation */}
+        <div className="flex items-center gap-1.5 p-1 rounded-md bg-muted text-xs">
+          <span className="px-2 text-muted-foreground font-medium select-none">
             Export:
           </span>
-          <div className="relative inline-flex items-center p-1 rounded-full bg-secondary/80 border border-border/60 shadow-inner backdrop-blur-md">
+          <div className="relative inline-flex items-center gap-1">
             {EXPORT_FORMATS.map((tab) => {
               const isActive = format === tab.id;
 
@@ -94,17 +94,17 @@ export function SanitizeActions({
                   type="button"
                   onClick={() => setFormat(tab.id)}
                   className={cn(
-                    "relative z-10 inline-flex items-center justify-center px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
+                    "relative z-10 inline-flex items-center justify-center px-2.5 py-1 text-xs font-medium rounded-md transition-colors duration-200 select-none cursor-pointer",
                     isActive
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {/* Apple Sliding Pill Spring Indicator */}
+                  {/* Sliding Spring Indicator with matched rounded-md border radius */}
                   {isActive && (
                     <motion.div
                       layoutId="apple-export-tab-indicator"
-                      className="absolute inset-0 z-[-1] rounded-full bg-card shadow-sm border border-border/80"
+                      className="absolute inset-0 z-[-1] rounded-md bg-card shadow-xs border border-border"
                       transition={{
                         type: "spring",
                         stiffness: 450,
