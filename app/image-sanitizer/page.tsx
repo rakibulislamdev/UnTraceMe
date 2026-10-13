@@ -1,4 +1,3 @@
-import React from "react";
 import type { Metadata } from "next";
 import { ImageSanitizerClient } from "./_components/image-sanitizer-client";
 import { MAX_IMAGES_COUNT } from "./_components/dropzone-pane";

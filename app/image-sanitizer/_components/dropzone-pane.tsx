@@ -122,22 +122,46 @@ export function DropzonePane({
           </p>
         </div>
 
-        {selectedImages.length > 0 && (
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs font-medium tabular-nums">
-              {selectedImages.length} / {MAX_IMAGES_COUNT} Images
-            </Badge>
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={onClearAll}
-              className="text-muted-foreground hover:text-destructive gap-1"
-            >
-              <Delete02Icon className="size-3.5" />
-              Clear All
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                const res = await fetch("/samples/c2pa-sample.jpg");
+                const blob = await res.blob();
+                const sampleFile = new File([blob], "c2pa-sample.jpg", { type: "image/jpeg" });
+                validateAndProcessFiles([sampleFile]);
+              } catch (err) {
+                console.error("Failed to load sample:", err);
+              }
+            }}
+            disabled={disabled || selectedImages.length >= MAX_IMAGES_COUNT}
+            className="text-xs h-7 gap-1"
+          >
+            <Image01Icon className="size-3.5 text-primary" />
+            Try Sample Image
+          </Button>
+
+          {selectedImages.length > 0 && (
+            <>
+              <Badge variant="outline" className="text-xs font-medium tabular-nums">
+                {selectedImages.length} / {MAX_IMAGES_COUNT} Images
+              </Badge>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={onClearAll}
+                className="text-muted-foreground hover:text-destructive gap-1"
+              >
+                <Delete02Icon className="size-3.5" />
+                Clear All
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <input
