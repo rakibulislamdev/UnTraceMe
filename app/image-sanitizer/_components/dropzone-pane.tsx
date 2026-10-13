@@ -184,7 +184,7 @@ export function DropzonePane({
             : "Click to browse or drop images here"}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Client-side memory sandbox. Zero server uploads.
+          Supports PNG, JPG, WEBP, and AVIF up to 15MB
         </p>
       </div>
 
