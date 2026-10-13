@@ -1,12 +1,17 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
   Shield01Icon, 
   Download04Icon, 
   Delete02Icon, 
-  RefreshIcon,
-  SparklesIcon
+  RefreshIcon
 } from "hugeicons-react";
+import { cn } from "@/lib/utils";
+
+export type ImageExportFormat = "image/png" | "image/jpeg" | "image/webp";
 
 interface SanitizeActionsProps {
   onSanitize: () => void;
@@ -16,9 +21,15 @@ interface SanitizeActionsProps {
   canSanitize: boolean;
   sanitizedCount: number;
   totalCount: number;
-  format: "image/png" | "image/jpeg" | "image/webp";
-  setFormat: (f: "image/png" | "image/jpeg" | "image/webp") => void;
+  format: ImageExportFormat;
+  setFormat: (f: ImageExportFormat) => void;
 }
+
+const EXPORT_FORMATS: { id: ImageExportFormat; label: string; ext: string }[] = [
+  { id: "image/png", label: "PNG", ext: "png" },
+  { id: "image/jpeg", label: "JPEG", ext: "jpg" },
+  { id: "image/webp", label: "WEBP", ext: "webp" },
+];
 
 export function SanitizeActions({
   onSanitize,
@@ -33,12 +44,13 @@ export function SanitizeActions({
 }: SanitizeActionsProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border border-border bg-card shadow-sm">
+      {/* Primary Actions */}
       <div className="flex flex-wrap items-center gap-3">
         <Button
           size="default"
           onClick={onSanitize}
           disabled={!canSanitize || isProcessing}
-          className="shadow-sm font-medium"
+          className="shadow-sm font-medium cursor-pointer"
         >
           {isProcessing ? (
             <>
@@ -58,36 +70,53 @@ export function SanitizeActions({
           size="default"
           onClick={onClear}
           disabled={totalCount === 0 && sanitizedCount === 0}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground cursor-pointer"
         >
           <Delete02Icon className="size-4 mr-2" />
           Clear Workspace
         </Button>
       </div>
 
+      {/* Export Format Selector & Batch Download */}
       <div className="flex flex-wrap items-center gap-3">
-        {/* Output Format Selector */}
-        <div className="flex items-center gap-1.5 p-1 rounded-md bg-muted text-xs">
-          <span className="px-2 text-muted-foreground font-medium">Export:</span>
-          {(["image/png", "image/jpeg", "image/webp"] as const).map((fmt) => {
-            const label = fmt === "image/png" ? "PNG" : fmt === "image/jpeg" ? "JPEG" : "WEBP";
-            const isSelected = format === fmt;
+        {/* Apple-style Segmented Glass Tab Container for Export Formats */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground font-medium select-none">
+            Export:
+          </span>
+          <div className="relative inline-flex items-center p-1 rounded-full bg-secondary/80 border border-border/60 shadow-inner backdrop-blur-md">
+            {EXPORT_FORMATS.map((tab) => {
+              const isActive = format === tab.id;
 
-            return (
-              <button
-                key={fmt}
-                type="button"
-                onClick={() => setFormat(fmt)}
-                className={`px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
-                  isSelected
-                    ? "bg-card text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setFormat(tab.id)}
+                  className={cn(
+                    "relative z-10 inline-flex items-center justify-center px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
+                    isActive
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {/* Apple Sliding Pill Spring Indicator */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="apple-export-tab-indicator"
+                      className="absolute inset-0 z-[-1] rounded-full bg-card shadow-sm border border-border/80"
+                      transition={{
+                        type: "spring",
+                        stiffness: 450,
+                        damping: 35,
+                      }}
+                    />
+                  )}
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {sanitizedCount > 0 && (
@@ -95,7 +124,7 @@ export function SanitizeActions({
             variant="secondary"
             size="default"
             onClick={onDownloadAll}
-            className="font-medium"
+            className="font-medium cursor-pointer"
           >
             <Download04Icon className="size-4 mr-2" />
             Download All ({sanitizedCount})

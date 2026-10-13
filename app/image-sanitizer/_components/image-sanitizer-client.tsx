@@ -85,14 +85,16 @@ export function ImageSanitizerClient() {
     const link = document.createElement("a");
     link.href = item.sanitizedUrl;
     link.download = `untraceme-${item.name.replace(/\.[^/.]+$/, "")}-clean.${ext}`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   const handleDownloadAll = () => {
     sanitizedItems.forEach((item, idx) => {
       setTimeout(() => {
         handleDownloadSingle(item);
-      }, idx * 250);
+      }, idx * 300);
     });
   };
 
