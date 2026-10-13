@@ -4,7 +4,8 @@ import {
   Shield01Icon, 
   Download04Icon, 
   Delete02Icon, 
-  RefreshIcon 
+  RefreshIcon,
+  SparklesIcon
 } from "hugeicons-react";
 
 interface SanitizeActionsProps {
@@ -15,6 +16,8 @@ interface SanitizeActionsProps {
   canSanitize: boolean;
   sanitizedCount: number;
   totalCount: number;
+  format: "image/png" | "image/jpeg" | "image/webp";
+  setFormat: (f: "image/png" | "image/jpeg" | "image/webp") => void;
 }
 
 export function SanitizeActions({
@@ -25,10 +28,12 @@ export function SanitizeActions({
   canSanitize,
   sanitizedCount,
   totalCount,
+  format,
+  setFormat,
 }: SanitizeActionsProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 py-2">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border border-border bg-card shadow-sm">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           size="default"
           onClick={onSanitize}
@@ -60,17 +65,43 @@ export function SanitizeActions({
         </Button>
       </div>
 
-      {sanitizedCount > 0 && (
-        <Button
-          variant="secondary"
-          size="default"
-          onClick={onDownloadAll}
-          className="font-medium"
-        >
-          <Download04Icon className="size-4 mr-2" />
-          Download All Sanitized ({sanitizedCount})
-        </Button>
-      )}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Output Format Selector */}
+        <div className="flex items-center gap-1.5 p-1 rounded-md bg-muted text-xs">
+          <span className="px-2 text-muted-foreground font-medium">Export:</span>
+          {(["image/png", "image/jpeg", "image/webp"] as const).map((fmt) => {
+            const label = fmt === "image/png" ? "PNG" : fmt === "image/jpeg" ? "JPEG" : "WEBP";
+            const isSelected = format === fmt;
+
+            return (
+              <button
+                key={fmt}
+                type="button"
+                onClick={() => setFormat(fmt)}
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
+                  isSelected
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {sanitizedCount > 0 && (
+          <Button
+            variant="secondary"
+            size="default"
+            onClick={onDownloadAll}
+            className="font-medium"
+          >
+            <Download04Icon className="size-4 mr-2" />
+            Download All ({sanitizedCount})
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

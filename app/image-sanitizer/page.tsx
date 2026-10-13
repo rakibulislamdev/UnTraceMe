@@ -6,20 +6,33 @@ import { MetadataBadgeList } from "./_components/metadata-badge-list";
 import { ImageComparison, SanitizedImageItem } from "./_components/image-comparison";
 import { SanitizeActions } from "./_components/sanitize-actions";
 import { sanitizeImageLocally } from "@/lib/image-engine/canvas-cleaner";
+import { scanImageMetadata, ScannedMetadataResult } from "@/lib/image-engine/metadata-scanner";
 import { AdContainer } from "@/app/_components/ad-container";
 import { Image01Icon } from "hugeicons-react";
 
 export default function ImageSanitizerPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [sanitizedItems, setSanitizedItems] = useState<SanitizedImageItem[]>([]);
+  const [scannedInfo, setScannedInfo] = useState<ScannedMetadataResult | null>(null);
+  const [exportFormat, setExportFormat] = useState<"image/png" | "image/jpeg" | "image/webp">("image/png");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleImagesSelected = (newFiles: File[]) => {
+  const handleImagesSelected = async (newFiles: File[]) => {
     setSelectedImages((prev) => [...prev, ...newFiles]);
+
+    // Inspect first image metadata
+    if (newFiles[0]) {
+      const scanResult = await scanImageMetadata(newFiles[0]);
+      setScannedInfo(scanResult);
+    }
   };
 
   const handleRemoveImage = (index: number) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setSelectedImages((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      if (updated.length === 0) setScannedInfo(null);
+      return updated;
+    });
   };
 
   const handleClearAll = () => {
@@ -30,6 +43,7 @@ export default function ImageSanitizerPage() {
 
     setSelectedImages([]);
     setSanitizedItems([]);
+    setScannedInfo(null);
   };
 
   const handleSanitizeBatch = async () => {
@@ -41,7 +55,13 @@ export default function ImageSanitizerPage() {
 
       for (const file of selectedImages) {
         const originalUrl = URL.createObjectURL(file);
-        const { blob, url: sanitizedUrl } = await sanitizeImageLocally(file);
+
+        // Sanitize with micro-dithering and selected format
+        const { blob, url: sanitizedUrl } = await sanitizeImageLocally(file, {
+          format: exportFormat,
+          quality: 0.96,
+          applyMicroDither: true,
+        });
 
         results.push({
           id: `${file.name}-${Date.now()}-${Math.random()}`,
@@ -49,7 +69,7 @@ export default function ImageSanitizerPage() {
           originalUrl,
           sanitizedUrl,
           blob,
-          size: file.size,
+          size: blob.size,
         });
       }
 
@@ -63,7 +83,7 @@ export default function ImageSanitizerPage() {
   };
 
   const handleDownloadSingle = (item: SanitizedImageItem) => {
-    const ext = item.name.toLowerCase().endsWith(".png") ? "png" : "jpg";
+    const ext = exportFormat === "image/png" ? "png" : exportFormat === "image/webp" ? "webp" : "jpg";
     const link = document.createElement("a");
     link.href = item.sanitizedUrl;
     link.download = `untraceme-${item.name.replace(/\.[^/.]+$/, "")}-clean.${ext}`;
@@ -115,11 +135,14 @@ export default function ImageSanitizerPage() {
           canSanitize={selectedImages.length > 0}
           sanitizedCount={sanitizedItems.length}
           totalCount={selectedImages.length}
+          format={exportFormat}
+          setFormat={setExportFormat}
         />
 
         <MetadataBadgeList
           hasImage={selectedImages.length > 0}
           isSanitized={sanitizedItems.length > 0}
+          scannedInfo={scannedInfo}
         />
 
         <ImageComparison
