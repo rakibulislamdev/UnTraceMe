@@ -48,7 +48,7 @@ export function ToolsSuiteSection({ tools }: ToolsSuiteSectionProps) {
             Anti-Detection & Media Engines
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            All tools run client-side with zero data storage or signups
+            All tools run with zero data storage or signups
           </p>
         </div>
 
