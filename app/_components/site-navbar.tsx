@@ -8,6 +8,7 @@ import {
   SparklesIcon, 
   Image01Icon,
   SecurityLockIcon,
+  AiVoiceIcon,
   Menu01Icon,
   Cancel01Icon
 } from "hugeicons-react";
@@ -37,6 +38,12 @@ export function SiteNavbar() {
       label: "Prompt Scrubber",
       icon: SecurityLockIcon,
       active: pathname.startsWith("/prompt-cleaner"),
+    },
+    {
+      href: "/audio-denoiser",
+      label: "Voice AI Filter",
+      icon: AiVoiceIcon,
+      active: pathname.startsWith("/audio-denoiser"),
     },
   ];
 

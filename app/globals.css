@@ -3,6 +3,10 @@
 @import "shadcn/tailwind.css";
 
 /* Lenis Recommended Core CSS */
+html {
+  scrollbar-gutter: stable;
+}
+
 html.lenis, html.lenis body {
   height: auto;
 }

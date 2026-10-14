@@ -45,9 +45,9 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "Voice AI Artifact Filter",
     description: "Harmonize synthetic frequency anomalies and metallic voiceover artifacts from generated speech.",
     slug: "/audio-denoiser",
-    badge: "Coming Soon",
+    badge: "100% Free",
     category: "audio",
     iconName: "AiVoiceIcon",
-    isReady: false,
+    isReady: true,
   },
 ];
