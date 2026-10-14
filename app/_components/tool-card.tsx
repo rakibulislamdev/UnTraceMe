@@ -5,7 +5,11 @@ import {
   Image01Icon, 
   SecurityLockIcon, 
   AiVoiceIcon,
-  ArrowRight01Icon 
+  ArrowRight01Icon,
+  ImageCompositionIcon,
+  Exchange01Icon,
+  Layers01Icon,
+  Pdf01Icon
 } from "hugeicons-react";
 import { ToolItem } from "@/config/tools-registry";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +21,10 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Image01Icon,
   SecurityLockIcon,
   AiVoiceIcon,
+  ImageCompositionIcon,
+  Exchange01Icon,
+  Layers01Icon,
+  Pdf01Icon,
 };
 
 interface ToolCardProps {

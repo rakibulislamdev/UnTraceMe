@@ -45,6 +45,12 @@ export function SiteNavbar() {
       icon: AiVoiceIcon,
       active: pathname.startsWith("/audio-denoiser"),
     },
+    {
+      href: "/image-compressor",
+      label: "Image Compressor",
+      icon: Image01Icon,
+      active: pathname.startsWith("/image-compressor"),
+    },
   ];
 
   return (

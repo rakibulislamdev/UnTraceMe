@@ -1,5 +1,3 @@
-import React from "react";
-
 interface AdContainerProps {
   slotId?: string;
   format?: "banner" | "horizontal" | "box";
