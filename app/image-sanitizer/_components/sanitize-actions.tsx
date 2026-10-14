@@ -94,17 +94,17 @@ export function SanitizeActions({
                   type="button"
                   onClick={() => setFormat(tab.id)}
                   className={cn(
-                    "relative z-10 inline-flex items-center justify-center px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
+                    "relative z-10 inline-flex items-center justify-center px-3.5 py-1 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
                     isActive
-                      ? "text-foreground"
+                      ? "text-primary-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {/* Apple Sliding Pill Spring Indicator */}
+                  {/* Sliding Pill Spring Indicator with High-Contrast Brand Color */}
                   {isActive && (
                     <motion.div
                       layoutId="apple-export-tab-indicator"
-                      className="absolute inset-0 z-[-1] rounded-full bg-card shadow-sm border border-border/80"
+                      className="absolute inset-0 z-[-1] rounded-full bg-primary shadow-xs"
                       transition={{
                         type: "spring",
                         stiffness: 500,

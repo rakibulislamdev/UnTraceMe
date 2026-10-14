@@ -38,37 +38,37 @@ export function BypassControls({ mode, setMode, disabled }: BypassControlsProps)
           const Icon = tab.icon;
           const isActive = mode === tab.id;
 
-          return (
-            <button
-              key={tab.id}
-              onClick={() => !disabled && setMode(tab.id)}
-              disabled={disabled}
-              type="button"
-              className={cn(
-                "relative z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
-                isActive
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-                disabled && "opacity-50 pointer-events-none cursor-not-allowed"
-              )}
-            >
-              {/* Apple Sliding Pill Spring Indicator */}
-              {isActive && (
-                <motion.div
-                  layoutId="apple-active-tab-indicator"
-                  className="absolute inset-0 z-[-1] rounded-full bg-card shadow-sm border border-border/80"
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 38,
-                    mass: 0.8,
-                  }}
-                />
-              )}
-              <Icon className="size-3.5 -mt-px shrink-0" />
-              <span>{tab.label}</span>
-            </button>
-          );
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => !disabled && setMode(tab.id)}
+                  disabled={disabled}
+                  type="button"
+                  className={cn(
+                    "relative z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
+                    isActive
+                      ? "text-primary-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground",
+                    disabled && "opacity-50 pointer-events-none cursor-not-allowed"
+                  )}
+                >
+                  {/* Apple Sliding Pill Spring Indicator with High-Contrast Brand Color */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="apple-active-tab-indicator"
+                      className="absolute inset-0 z-[-1] rounded-full bg-primary shadow-xs"
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 38,
+                        mass: 0.8,
+                      }}
+                    />
+                  )}
+                  <Icon className={cn("size-3.5 -mt-px shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
+                  <span>{tab.label}</span>
+                </button>
+              );
         })}
         </div>
       </div>

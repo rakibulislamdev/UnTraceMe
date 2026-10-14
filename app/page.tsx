@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { TOOLS_REGISTRY } from "@/config/tools-registry";
-import { ToolCard } from "./_components/tool-card";
+import { ToolsSuiteSection } from "./_components/tools-suite-section";
 import { AdContainer } from "./_components/ad-container";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,28 +76,8 @@ export default function HomePage() {
         <AdContainer format="banner" />
       </div>
 
-      {/* Tools Suite Workspace Grid (Section 11) */}
-      <section className="py-12 md:py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-border">
-          <div>
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-              Available Modules
-            </span>
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground mt-1">
-              Select an Anti-Detection Engine
-            </h2>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2 sm:mt-0">
-            No signup or credit card required
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {TOOLS_REGISTRY.map((tool) => (
-            <ToolCard key={tool.id} tool={tool} />
-          ))}
-        </div>
-      </section>
+      {/* Tools Suite Workspace with Category Filter and Compact Grid */}
+      <ToolsSuiteSection tools={TOOLS_REGISTRY} />
 
       {/* Bottom Ad Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-8">

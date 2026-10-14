@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 export const metadata: Metadata = {
   title: "UnTraceMe — All-in-One AI Trace & Metadata Remover",
   description: "Bypass AI detection, humanize AI-generated text, and strip image synthetic metadata completely free without privacy compromises.",
@@ -32,11 +34,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] selection:bg-indigo-500 selection:text-white" suppressHydrationWarning>
-        <SmoothScrollProvider>
-          <SiteNavbar />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <SiteFooter />
-        </SmoothScrollProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SmoothScrollProvider>
+            <SiteNavbar />
+            <main className="flex-1 flex flex-col">{children}</main>
+            <SiteFooter />
+          </SmoothScrollProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
