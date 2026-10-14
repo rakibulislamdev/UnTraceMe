@@ -35,10 +35,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "AI Prompt Scrubber",
     description: "Remove system jailbreaks, hidden watermarking tokens, and AI signature prompts from shared workflows.",
     slug: "/prompt-cleaner",
-    badge: "Coming Soon",
+    badge: "100% Free",
     category: "text",
     iconName: "SecurityLockIcon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "audio-denoiser",

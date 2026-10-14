@@ -7,6 +7,7 @@ import {
   Shield01Icon, 
   SparklesIcon, 
   Image01Icon,
+  SecurityLockIcon,
   Menu01Icon,
   Cancel01Icon
 } from "hugeicons-react";
@@ -30,6 +31,12 @@ export function SiteNavbar() {
       label: "Image Sanitizer",
       icon: Image01Icon,
       active: pathname.startsWith("/image-sanitizer"),
+    },
+    {
+      href: "/prompt-cleaner",
+      label: "Prompt Scrubber",
+      icon: SecurityLockIcon,
+      active: pathname.startsWith("/prompt-cleaner"),
     },
   ];
 
