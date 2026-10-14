@@ -85,9 +85,9 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "PDF Compressor & Sanitizer",
     description: "Reduce PDF document size and strip hidden author, software, and revision history metadata securely.",
     slug: "/pdf-compressor",
-    badge: "Coming Soon",
+    badge: "New",
     category: "security",
     iconName: "Pdf01Icon",
-    isReady: false,
+    isReady: true,
   },
 ];

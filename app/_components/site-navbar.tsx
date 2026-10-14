@@ -8,6 +8,7 @@ import {
   SparklesIcon, 
   Image01Icon,
   Layers01Icon,
+  Pdf01Icon,
   SecurityLockIcon,
   AiVoiceIcon,
   Menu01Icon,
@@ -60,6 +61,13 @@ export function SiteNavbar() {
       desc: "Multi-size .ico, iOS, Android PWA",
       icon: Layers01Icon,
       active: pathname.startsWith("/favicon-generator"),
+    },
+    {
+      href: "/pdf-compressor",
+      label: "PDF Compressor & Sanitizer",
+      desc: "Scrub PDF author & metadata",
+      icon: Pdf01Icon,
+      active: pathname.startsWith("/pdf-compressor"),
     },
     {
       href: "/prompt-cleaner",
