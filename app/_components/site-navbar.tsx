@@ -7,6 +7,7 @@ import {
   Shield01Icon, 
   SparklesIcon, 
   Image01Icon,
+  Layers01Icon,
   SecurityLockIcon,
   AiVoiceIcon,
   Menu01Icon,
@@ -53,6 +54,13 @@ export function SiteNavbar() {
 
   // More tools grouped in sleek dropdown
   const moreTools = [
+    {
+      href: "/favicon-generator",
+      label: "Favicon & App Icon Pack",
+      desc: "Multi-size .ico, iOS, Android PWA",
+      icon: Layers01Icon,
+      active: pathname.startsWith("/favicon-generator"),
+    },
     {
       href: "/prompt-cleaner",
       label: "Prompt Scrubber",

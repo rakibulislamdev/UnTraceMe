@@ -75,10 +75,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "Favicon & App Icon Pack",
     description: "Generate multi-size .ico bundles, iOS touch icons, and Android PWA assets with instant client-side download.",
     slug: "/favicon-generator",
-    badge: "Coming Soon",
+    badge: "New",
     category: "image",
     iconName: "Layers01Icon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "pdf-compressor",

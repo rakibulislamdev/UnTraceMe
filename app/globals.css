@@ -2,8 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Lenis Recommended Core CSS */
+/* Core Scrollbar Stabilization - Prevents horizontal layout shifts and scrollbar flickering */
 html {
+  overflow-y: scroll;
   scrollbar-gutter: stable;
 }
 
