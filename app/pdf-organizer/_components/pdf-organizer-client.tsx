@@ -7,7 +7,7 @@ import {
   splitAllPdfPages,
   SplitPdfResult,
 } from "@/lib/pdf-engine/pdf-organizer";
-import { renderAllPdfPageThumbnails } from "@/lib/pdf-engine/pdf-thumbnail";
+import { renderPdfPageRangeThumbnails } from "@/lib/pdf-engine/pdf-thumbnail";
 import { PDFDocument } from "pdf-lib";
 import { PageMeta } from "./types";
 import { PdfDropzone } from "./pdf-dropzone";
@@ -24,6 +24,10 @@ export function PdfOrganizerClient() {
   const [result, setResult] = useState<SplitPdfResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activePreviewPage, setActivePreviewPage] = useState<number | null>(null);
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
+
+  const renderedPagesRef = React.useRef<Set<number>>(new Set());
+  const isRenderingBatchRef = React.useRef<boolean>(false);
 
   const handleFileChange = async (selectedFile: File) => {
     // 1. Strict Extension & MIME validation
@@ -35,38 +39,103 @@ export function PdfOrganizerClient() {
       return;
     }
 
+    setIsLoadingPdf(true);
+    setErrorMessage(null);
+    setResult(null);
+
     try {
-      // 2. Strict Magic Header validation (Read first 5 bytes to verify %PDF-)
+      // 2. Strict Magic Header validation
       const headerBytes = new Uint8Array(await selectedFile.slice(0, 5).arrayBuffer());
       const headerString = String.fromCharCode(...headerBytes);
       if (!headerString.startsWith("%PDF-")) {
         setErrorMessage(`Corrupted or fake PDF: "${selectedFile.name}" does not have a valid %PDF- binary header.`);
+        setIsLoadingPdf(false);
         return;
       }
-      setErrorMessage(null);
-      setFile(selectedFile);
-      setResult(null);
+
+      // Fast in-browser page count extraction using PDF.js worker
+      const pdfjsLib = await import("pdfjs-dist");
+      if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+      }
 
       const buffer = await selectedFile.arrayBuffer();
-      const doc = await PDFDocument.load(buffer, { ignoreEncryption: true });
-      const total = doc.getPageCount();
+      let totalPages = 0;
 
-      const initialPages: PageMeta[] = Array.from({ length: total }, (_, i) => ({
+      try {
+        const loadingTask = pdfjsLib.getDocument({
+          data: buffer,
+          disableFontFace: true,
+        });
+        const pdfDoc = await loadingTask.promise;
+        totalPages = pdfDoc.numPages;
+      } catch (pdfjsErr) {
+        console.warn("PDF.js count fallback to pdf-lib:", pdfjsErr);
+        const doc = await PDFDocument.load(buffer, { ignoreEncryption: true });
+        totalPages = doc.getPageCount();
+      }
+
+      if (totalPages === 0) {
+        setErrorMessage("Could not detect any pages in this document.");
+        setIsLoadingPdf(false);
+        return;
+      }
+
+      const initialPages: PageMeta[] = Array.from({ length: totalPages }, (_, i) => ({
         pageNumber: i + 1,
         rotation: 0,
         isSelected: true,
       }));
-      setPages(initialPages);
 
-      // Asynchronously render real page thumbnails for visual preview
-      renderAllPdfPageThumbnails(selectedFile, 50).then((thumbMap) => {
-        setThumbnails(thumbMap);
-      });
+      renderedPagesRef.current.clear();
+      setThumbnails({});
+
+      // Only display the workspace once pages are fully initialized!
+      setFile(selectedFile);
+      setPages(initialPages);
+      setIsLoadingPdf(false);
     } catch (err) {
       console.error("PDF read error:", err);
-      setErrorMessage("Could not parse this PDF. It may be password-protected.");
+      setErrorMessage("Could not parse this PDF. It may be corrupted or password-protected.");
+      setIsLoadingPdf(false);
     }
   };
+
+  const handleBatchChange = React.useCallback(
+    (startPage: number, endPage: number) => {
+      if (!file) return;
+
+      // Smart Fast-Mode: For large documents (>100 pages, e.g. 26,000 pages),
+      // we only render the first 8 pages of any batch so CPU/GPU stays at 60 FPS,
+      // and any page can be zoomed/inspected on-demand in milliseconds!
+      const isLargeDoc = pages.length > 100;
+      const targetEnd = isLargeDoc ? Math.min(endPage, startPage + 7) : endPage;
+
+      const unrendered: number[] = [];
+      for (let p = startPage; p <= targetEnd; p++) {
+        if (!renderedPagesRef.current.has(p)) {
+          unrendered.push(p);
+        }
+      }
+
+      if (unrendered.length === 0 || isRenderingBatchRef.current) return;
+      isRenderingBatchRef.current = true;
+
+      unrendered.forEach((p) => renderedPagesRef.current.add(p));
+
+      renderPdfPageRangeThumbnails(
+        file,
+        startPage,
+        targetEnd,
+        (_count, pageNum, url) => {
+          setThumbnails((prev) => ({ ...prev, [pageNum]: url }));
+        }
+      ).finally(() => {
+        isRenderingBatchRef.current = false;
+      });
+    },
+    [file, pages.length]
+  );
 
   const handleRotatePage = (index: number) => {
     setPages((prev) =>
@@ -163,6 +232,9 @@ export function PdfOrganizerClient() {
   };
 
   const handleClear = () => {
+    renderedPagesRef.current.clear();
+    isRenderingBatchRef.current = false;
+    setThumbnails({});
     setFile(null);
     setPages([]);
     setResult(null);
@@ -180,7 +252,7 @@ export function PdfOrganizerClient() {
       )}
 
       {!file ? (
-        <PdfDropzone onFileSelect={handleFileChange} />
+        <PdfDropzone onFileSelect={handleFileChange} isLoading={isLoadingPdf} />
       ) : (
         <PdfOrganizerWorkspace
           file={file}
@@ -196,6 +268,7 @@ export function PdfOrganizerClient() {
           onExportSelected={handleExportSelected}
           onSplitAllToZip={handleSplitAllToZip}
           onOpenPreview={setActivePreviewPage}
+          onBatchChange={handleBatchChange}
         />
       )}
 
@@ -204,12 +277,16 @@ export function PdfOrganizerClient() {
       )}
 
       <PdfPreviewModal
+        file={file}
         activePreviewPage={activePreviewPage}
         pages={pages}
         thumbnails={thumbnails}
         onClose={() => setActivePreviewPage(null)}
         onPageChange={setActivePreviewPage}
         onRotatePage={handleRotatePage}
+        onThumbnailGenerated={(pageNum, url) => {
+          setThumbnails((prev) => ({ ...prev, [pageNum]: url }));
+        }}
       />
     </div>
   );
