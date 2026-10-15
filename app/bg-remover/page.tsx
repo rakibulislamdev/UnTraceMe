@@ -21,13 +21,13 @@ export default function BgRemoverPage() {
       <div className="mb-8">
         <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
           <SparklesIcon className="size-4" />
-          <span>Module 07 • Client-Side Neural AI</span>
+          <span>Module 07</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
-          In-Browser AI Background Remover
+          Image Background Remover
         </h1>
         <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
-          Remove backgrounds with high-precision edge cutout using local WebAssembly AI models. Everything runs privately on your device GPU/CPU — your images are never uploaded or stored anywhere.
+          Remove backgrounds from photos instantly with on-device processing. 100% private with custom backdrop colors or transparent PNG export.
         </p>
       </div>
 

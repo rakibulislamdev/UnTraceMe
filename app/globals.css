@@ -10,6 +10,7 @@ html {
 
 html.lenis, html.lenis body {
   height: auto;
+  min-height: 100%;
 }
 
 .lenis.lenis-smooth {

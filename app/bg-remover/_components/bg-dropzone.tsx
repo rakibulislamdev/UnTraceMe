@@ -5,11 +5,9 @@ import {
   Upload04Icon, 
   Image01Icon, 
   Delete02Icon,
-  AlertCircleIcon,
-  SparklesIcon
+  AlertCircleIcon
 } from "hugeicons-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 export const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
@@ -39,7 +37,6 @@ export function BgDropzone({
   const validateAndProcessFile = (file: File) => {
     setErrorMessage(null);
 
-    // 1. Strict MIME format validation
     if (!ALLOWED_IMAGE_TYPES.includes(file.type.toLowerCase())) {
       setErrorMessage(
         `Invalid file format: "${file.name}". Supported formats: PNG, JPG/JPEG, WEBP.`
@@ -47,10 +44,9 @@ export function BgDropzone({
       return;
     }
 
-    // 2. File size limit validation
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setErrorMessage(
-        `File too large: "${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit for browser AI execution.`
+        `File too large: "${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`
       );
       return;
     }
@@ -79,17 +75,17 @@ export function BgDropzone({
 
   return (
     <div className="space-y-4">
-      {/* Drag & Drop Area */}
+      {/* Big prominent iLovePDF-style Select Button & Drop area */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !disabled && fileInputRef.current?.click()}
-        className={`group relative flex flex-col items-center justify-center p-8 sm:p-12 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer overflow-hidden ${
+        className={`relative border-2 border-dashed rounded-xl p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center ${
           isDragOver
             ? "border-primary bg-primary/5 scale-[0.99]"
-            : "border-border hover:border-border/80 bg-card hover:bg-muted/30"
-        } ${disabled ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
+            : "border-border hover:border-border/80 hover:bg-muted/30 bg-card"
+        } ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
       >
         <input
           ref={fileInputRef}
@@ -120,14 +116,14 @@ export function BgDropzone({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
-            <Badge variant="secondary" className="text-[10px] font-mono">
-              Zero Server Uploads
-            </Badge>
-            <Badge variant="outline" className="text-[10px] font-mono text-primary border-primary/20 bg-primary/5">
-              100% On-Device AI
-            </Badge>
-          </div>
+          <Button
+            type="button"
+            size="sm"
+            disabled={disabled}
+            className="mt-2 text-xs font-medium"
+          >
+            Select Image
+          </Button>
         </div>
       </div>
 
@@ -141,9 +137,9 @@ export function BgDropzone({
 
       {/* Selected Image Card */}
       {selectedFile && (
-        <div className="flex items-center justify-between p-3.5 rounded-lg border border-border bg-card shadow-xs">
+        <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card shadow-xs">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="size-10 rounded-md bg-secondary flex items-center justify-center shrink-0 text-muted-foreground">
+            <div className="size-10 rounded-lg bg-secondary flex items-center justify-center shrink-0 text-muted-foreground">
               <Image01Icon className="size-5" />
             </div>
             <div className="min-w-0">
@@ -176,4 +172,3 @@ export function BgDropzone({
     </div>
   );
 }
-

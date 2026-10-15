@@ -11,16 +11,7 @@ export function SmoothScrollProvider({
   useEffect(() => {
     document.documentElement.classList.add("lenis", "lenis-smooth");
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-      infinite: false,
-    });
+    const lenis = new Lenis();
 
     function raf(time: number) {
       lenis.raf(time);
@@ -29,8 +20,15 @@ export function SmoothScrollProvider({
 
     const rafId = requestAnimationFrame(raf);
 
+    // Refresh Lenis scroll dimensions on layout changes
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+    });
+    resizeObserver.observe(document.body);
+
     return () => {
       cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
       lenis.destroy();
     };
   }, []);
