@@ -65,10 +65,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "Batch Image Converter",
     description: "Convert images seamlessly between PNG, JPG, WebP, and AVIF formats entirely in your browser without data uploads.",
     slug: "/image-converter",
-    badge: "Coming Soon",
+    badge: "New",
     category: "image",
     iconName: "Exchange01Icon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "favicon-generator",
