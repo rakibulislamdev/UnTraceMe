@@ -58,6 +58,14 @@ export function SiteNavbar() {
   // More tools grouped into two distinct categories
   const mediaTools = [
     {
+      href: "/bg-remover",
+      label: "AI Background Remover",
+      desc: "Client-side neural background cutout",
+      icon: SparklesIcon,
+      active: pathname.startsWith("/bg-remover"),
+      badge: "New",
+    },
+    {
       href: "/image-converter",
       label: "Batch Image Converter",
       desc: "Convert WebP, PNG, JPG & AVIF",

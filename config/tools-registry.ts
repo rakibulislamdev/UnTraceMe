@@ -145,10 +145,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "In-Browser AI Background Remover",
     description: "Cut out subject backgrounds instantly with on-device AI neural networks without transmitting files.",
     slug: "/bg-remover",
-    badge: "Coming Soon",
+    badge: "New",
     category: "image",
     iconName: "Image01Icon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "social-resizer",
