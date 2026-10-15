@@ -56,13 +56,27 @@ export function PdfPageCard({
             <img
               src={thumbnailUrl}
               alt={`Page ${page.pageNumber}`}
-              className="w-full h-full object-contain pointer-events-none select-none"
+              className="w-full h-full object-contain pointer-events-none select-none bg-white"
               loading="lazy"
             />
           ) : (
-            <div className="flex flex-col items-center gap-1.5 p-2">
-              <Pdf01Icon className="size-7 text-muted-foreground/60" />
-              <span className="text-[10px] text-muted-foreground">Rendering...</span>
+            <div className="size-full flex flex-col justify-between p-2.5 bg-white select-none">
+              <div className="flex items-center justify-between opacity-50">
+                <Pdf01Icon className="size-3.5 text-primary" />
+                <span className="text-[9px] font-mono font-bold text-slate-700">
+                  p.{page.pageNumber}
+                </span>
+              </div>
+              <div className="space-y-1.5 my-auto px-1 opacity-25">
+                <div className="h-1 bg-slate-800 rounded-full w-full" />
+                <div className="h-1 bg-slate-800 rounded-full w-4/5" />
+                <div className="h-1 bg-slate-800 rounded-full w-full" />
+                <div className="h-1 bg-slate-800 rounded-full w-2/3" />
+                <div className="h-1 bg-slate-800 rounded-full w-3/4" />
+              </div>
+              <div className="text-[8px] text-center font-mono font-medium text-slate-600 bg-slate-100 py-0.5 rounded">
+                Sheet {page.pageNumber}
+              </div>
             </div>
           )}
         </div>

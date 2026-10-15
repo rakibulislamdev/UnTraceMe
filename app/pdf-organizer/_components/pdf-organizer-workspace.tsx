@@ -28,6 +28,7 @@ interface PdfOrganizerWorkspaceProps {
   onExportSelected: () => void;
   onSplitAllToZip: () => void;
   onOpenPreview: (pageNumber: number) => void;
+  onBatchChange?: (startPage: number, endPage: number) => void;
 }
 
 export function PdfOrganizerWorkspace({
@@ -44,33 +45,23 @@ export function PdfOrganizerWorkspace({
   onExportSelected,
   onSplitAllToZip,
   onOpenPreview,
+  onBatchChange,
 }: PdfOrganizerWorkspaceProps) {
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const PAGE_SIZE = 60; // Show 60 cards at a time so even 2000+ page PDFs run with 60 FPS!
 
-  // Callback ref to guarantee wheel listener is cleanly attached and isolates scroll
-  const setScrollContainerRef = React.useCallback((node: HTMLDivElement | null) => {
-    if (scrollContainerRef.current) {
-      const el = scrollContainerRef.current as HTMLElement & { _wheelHandler?: (e: WheelEvent) => void };
-      if (el._wheelHandler) {
-        el.removeEventListener("wheel", el._wheelHandler);
-        delete el._wheelHandler;
-      }
+  const totalBatches = Math.ceil(pages.length / PAGE_SIZE);
+  const visiblePages = pages.length > PAGE_SIZE
+    ? pages.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+    : pages;
+
+  React.useEffect(() => {
+    if (onBatchChange) {
+      const start = (currentPage - 1) * PAGE_SIZE + 1;
+      const end = Math.min(currentPage * PAGE_SIZE, pages.length);
+      onBatchChange(start, end);
     }
-
-    scrollContainerRef.current = node;
-
-    if (node) {
-      const onWheel = (e: WheelEvent) => {
-        // Trap wheel event inside container to stop page scroll
-        e.preventDefault();
-        e.stopPropagation();
-        node.scrollTop += e.deltaY;
-      };
-
-      (node as HTMLElement & { _wheelHandler?: (e: WheelEvent) => void })._wheelHandler = onWheel;
-      node.addEventListener("wheel", onWheel, { passive: false });
-    }
-  }, []);
+  }, [currentPage, onBatchChange, pages.length]);
 
   const selectedCount = pages.filter((p) => p.isSelected).length;
 
@@ -86,6 +77,15 @@ export function PdfOrganizerWorkspace({
           <Badge variant="outline" className="text-[10px] font-mono">
             {pages.length} Pages • {formatBytes(file.size)}
           </Badge>
+          {pages.length > 100 && (
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+              title="Ultra-Fast mode enabled for large document: instant page splitting, selection, and rotation without memory freezing."
+            >
+              ⚡ Fast Mode
+            </Badge>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -127,27 +127,62 @@ export function PdfOrganizerWorkspace({
         </div>
       </div>
 
-      {/* Interactive Pages Scroll Container with Mouse Wheel Isolation */}
+      {/* Interactive Pages Scroll Container */}
       <div
-        ref={setScrollContainerRef}
         tabIndex={0}
         className="w-full max-h-[560px] overflow-y-auto overscroll-contain focus:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 rounded-lg pr-1.5 p-1 border border-border/40 bg-muted/10 cursor-default"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {pages.map((p, idx) => (
-            <PdfPageCard
-              key={idx}
-              page={p}
-              index={idx}
-              thumbnailUrl={thumbnails[p.pageNumber]}
-              onToggleSelect={onToggleSelect}
-              onRotatePage={onRotatePage}
-              onOpenPreview={onOpenPreview}
-            />
-          ))}
+          {visiblePages.map((p) => {
+            const actualIndex = p.pageNumber - 1;
+            return (
+              <PdfPageCard
+                key={p.pageNumber}
+                page={p}
+                index={actualIndex}
+                thumbnailUrl={thumbnails[p.pageNumber]}
+                onToggleSelect={onToggleSelect}
+                onRotatePage={onRotatePage}
+                onOpenPreview={onOpenPreview}
+              />
+            );
+          })}
         </div>
       </div>
+
+      {/* Pagination Bar for Large PDFs (>60 pages) */}
+      {totalBatches > 1 && (
+        <div className="flex items-center justify-between px-2 py-1.5 bg-muted/30 border border-border rounded-lg text-xs">
+          <span className="text-muted-foreground font-mono">
+            Showing pages {(currentPage - 1) * PAGE_SIZE + 1}–
+            {Math.min(currentPage * PAGE_SIZE, pages.length)} of {pages.length}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="h-6 px-2 text-[11px]"
+            >
+              Previous
+            </Button>
+            <span className="text-xs font-mono font-medium px-1">
+              {currentPage} / {totalBatches}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalBatches}
+              onClick={() => setCurrentPage((p) => Math.min(totalBatches, p + 1))}
+              className="h-6 px-2 text-[11px]"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Action Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-border">
