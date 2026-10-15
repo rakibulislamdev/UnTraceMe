@@ -7,7 +7,7 @@ import { Image01Icon } from "hugeicons-react";
 export const metadata: Metadata = {
   title: "AI Image Trace & Metadata Sanitizer | UnTraceMe",
   description:
-    "Strip EXIF, C2PA Content Credentials, and embedded AI prompts completely inside your browser with micro-dithering trace disruption.",
+    "Strip EXIF, C2PA Content Credentials, and embedded AI prompts with micro-dithering trace disruption.",
   openGraph: {
     title: "AI Image Trace & Metadata Sanitizer | UnTraceMe",
     description:
@@ -28,7 +28,7 @@ export default function ImageSanitizerPage() {
           AI Image Trace & Metadata Sanitizer
         </h1>
         <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
-          Cleanse C2PA content credentials, embedded prompts, and EXIF tracking metadata completely inside your browser. Batch processing up to {MAX_IMAGES_COUNT} images simultaneously.
+          Cleanse C2PA content credentials, embedded prompts, and EXIF tracking metadata. Batch processing up to {MAX_IMAGES_COUNT} images simultaneously.
         </p>
       </div>
 

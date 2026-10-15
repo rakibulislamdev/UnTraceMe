@@ -1,10 +1,8 @@
-import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { 
-  AlertCircleIcon, 
-  CheckmarkCircle02Icon, 
-  Shield01Icon,
-  SparklesIcon
+import {
+  AlertCircleIcon,
+  CheckmarkCircle02Icon,
+  Shield01Icon
 } from "hugeicons-react";
 import { ScannedMetadataResult } from "@/lib/image-engine/metadata-scanner";
 
@@ -87,8 +85,7 @@ export function MetadataBadgeList({
       </div>
 
       {isSanitized && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/5 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300">
-          <SparklesIcon className="size-4 shrink-0 text-emerald-500" />
+        <div className="p-3 rounded-md bg-emerald-500/5 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300">
           <span>
             Micro-dither filter applied. All steganographic frequencies randomized without visual degradation.
           </span>

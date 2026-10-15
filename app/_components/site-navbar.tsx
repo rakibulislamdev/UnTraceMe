@@ -14,7 +14,9 @@ import {
   Menu01Icon,
   Cancel01Icon,
   ArrowDown01Icon,
-  Github01Icon
+  Github01Icon,
+  Exchange01Icon,
+  ImageCompositionIcon,
 } from "hugeicons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -53,14 +55,48 @@ export function SiteNavbar() {
     },
   ];
 
-  // More tools grouped in sleek dropdown
-  const moreTools = [
+  // More tools grouped into two distinct categories
+  const mediaTools = [
+    {
+      href: "/image-converter",
+      label: "Batch Image Converter",
+      desc: "Convert WebP, PNG, JPG & AVIF",
+      icon: Exchange01Icon,
+      active: pathname.startsWith("/image-converter"),
+      badge: "New",
+    },
+    {
+      href: "/svg-optimizer",
+      label: "SVG Optimizer & Minifier",
+      desc: "Strip bloat, precision rounding",
+      icon: ImageCompositionIcon,
+      active: pathname.startsWith("/svg-optimizer"),
+      badge: "New",
+    },
     {
       href: "/favicon-generator",
       label: "Favicon & App Icon Pack",
       desc: "Multi-size .ico, iOS, Android PWA",
       icon: Layers01Icon,
       active: pathname.startsWith("/favicon-generator"),
+    },
+    {
+      href: "/audio-denoiser",
+      label: "Voice AI Filter",
+      desc: "Harmonize metallic voice audio",
+      icon: AiVoiceIcon,
+      active: pathname.startsWith("/audio-denoiser"),
+    },
+  ];
+
+  const documentAndAiTools = [
+    {
+      href: "/pdf-organizer",
+      label: "PDF Split & Organizer",
+      desc: "Reorder, rotate & extract sheets",
+      icon: Pdf01Icon,
+      active: pathname.startsWith("/pdf-organizer"),
+      badge: "New",
     },
     {
       href: "/pdf-compressor",
@@ -76,14 +112,9 @@ export function SiteNavbar() {
       icon: SecurityLockIcon,
       active: pathname.startsWith("/prompt-cleaner"),
     },
-    {
-      href: "/audio-denoiser",
-      label: "Voice AI Filter",
-      desc: "Harmonize metallic audio artifacts",
-      icon: AiVoiceIcon,
-      active: pathname.startsWith("/audio-denoiser"),
-    },
   ];
+
+  const moreTools = [...mediaTools, ...documentAndAiTools];
 
   const allNavLinks = [...primaryLinks, ...moreTools];
   const isMoreActive = moreTools.some((t) => t.active);
@@ -141,40 +172,95 @@ export function SiteNavbar() {
               <ArrowDown01Icon className="size-3 opacity-70" />
             </DropdownMenuTrigger>
             <DropdownMenuContent 
-              align="start" 
+              align="end" 
               sideOffset={8}
-              className="w-64 p-1.5 rounded-lg border border-border bg-popover/95 backdrop-blur-md shadow-lg"
+              className="w-[540px] p-3 rounded-xl border border-border bg-popover/95 backdrop-blur-md shadow-xl"
             >
-              <div className="px-2.5 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Specialized Modules
+              <div className="grid grid-cols-2 gap-3">
+                {/* Column 1: Image & Media Suite */}
+                <div className="space-y-1">
+                  <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between border-b border-border/50 mb-1">
+                    <span>Image & Media</span>
+                    <span className="text-[9px] font-mono opacity-70">Suite</span>
+                  </div>
+                  {mediaTools.map((tool) => {
+                    const IconComponent = tool.icon;
+                    return (
+                      <DropdownMenuItem 
+                        key={tool.href} 
+                        className="p-0 rounded-md cursor-pointer focus:bg-muted/80 transition-colors"
+                      >
+                        <Link
+                          href={tool.href}
+                          className={cn(
+                            "flex items-start gap-2.5 p-2 w-full rounded-md transition-colors",
+                            tool.active 
+                              ? "bg-primary/10 text-primary font-medium" 
+                              : "text-foreground hover:bg-muted/60"
+                          )}
+                        >
+                          <div className="size-7 rounded-md bg-accent text-accent-foreground flex items-center justify-center shrink-0 mt-0.5">
+                            <IconComponent className="size-3.5 text-primary" />
+                          </div>
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-xs font-semibold text-foreground tracking-tight">{tool.label}</span>
+                              {tool.badge && (
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 border-primary/30 text-primary bg-primary/5">
+                                  {tool.badge}
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-muted-foreground line-clamp-1">{tool.desc}</span>
+                          </div>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
+
+                {/* Column 2: Document & AI Tools */}
+                <div className="space-y-1 border-l border-border/50 pl-3">
+                  <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between border-b border-border/50 mb-1">
+                    <span>Document & AI</span>
+                    <span className="text-[9px] font-mono opacity-70">Security</span>
+                  </div>
+                  {documentAndAiTools.map((tool) => {
+                    const IconComponent = tool.icon;
+                    return (
+                      <DropdownMenuItem 
+                        key={tool.href} 
+                        className="p-0 rounded-md cursor-pointer focus:bg-muted/80 transition-colors"
+                      >
+                        <Link
+                          href={tool.href}
+                          className={cn(
+                            "flex items-start gap-2.5 p-2 w-full rounded-md transition-colors",
+                            tool.active 
+                              ? "bg-primary/10 text-primary font-medium" 
+                              : "text-foreground hover:bg-muted/60"
+                          )}
+                        >
+                          <div className="size-7 rounded-md bg-accent text-accent-foreground flex items-center justify-center shrink-0 mt-0.5">
+                            <IconComponent className="size-3.5 text-primary" />
+                          </div>
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-xs font-semibold text-foreground tracking-tight">{tool.label}</span>
+                              {tool.badge && (
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 border-primary/30 text-primary bg-primary/5">
+                                  {tool.badge}
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-muted-foreground line-clamp-1">{tool.desc}</span>
+                          </div>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
               </div>
-              {moreTools.map((tool) => {
-                const IconComponent = tool.icon;
-                return (
-                  <DropdownMenuItem 
-                    key={tool.href} 
-                    className="p-0 rounded-md cursor-pointer focus:bg-muted/80 transition-colors"
-                  >
-                    <Link
-                      href={tool.href}
-                      className={cn(
-                        "flex items-start gap-2.5 p-2 w-full rounded-md transition-colors",
-                        tool.active 
-                          ? "bg-primary/10 text-primary font-medium" 
-                          : "text-foreground hover:bg-muted/60"
-                      )}
-                    >
-                      <div className="size-8 rounded-md bg-accent text-accent-foreground flex items-center justify-center shrink-0 mt-0.5">
-                        <IconComponent className="size-4 text-primary" />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-semibold text-foreground tracking-tight">{tool.label}</span>
-                        <span className="text-[11px] text-muted-foreground line-clamp-1">{tool.desc}</span>
-                      </div>
-                    </Link>
-                  </DropdownMenuItem>
-                );
-              })}
             </DropdownMenuContent>
           </DropdownMenu>
 
