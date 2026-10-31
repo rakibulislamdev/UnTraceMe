@@ -165,10 +165,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "Color Palette & Token Extractor",
     description: "Extract dominant color harmonies, contrast scores, and Tailwind CSS tokens directly from uploaded artwork.",
     slug: "/palette-extractor",
-    badge: "Coming Soon",
+    badge: "New",
     category: "image",
-    iconName: "Layers01Icon",
-    isReady: false,
+    iconName: "ColorsIcon",
+    isReady: true,
   },
   {
     id: "entropy-generator",
