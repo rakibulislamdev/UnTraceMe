@@ -185,10 +185,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "EXIF & Geolocation Map Inspector",
     description: "Inspect binary camera headers, lens details, and visual GPS coordinate mapping with zero leaks.",
     slug: "/exif-inspector",
-    badge: "Coming Soon",
+    badge: "New",
     category: "security",
-    iconName: "Image01Icon",
-    isReady: false,
+    iconName: "GlobeIcon",
+    isReady: true,
   },
 ];
 

@@ -10,7 +10,8 @@ import {
   Exchange01Icon,
   Layers01Icon,
   Pdf01Icon,
-  ColorsIcon
+  ColorsIcon,
+  GlobeIcon
 } from "hugeicons-react";
 import { ToolItem } from "@/config/tools-registry";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Layers01Icon,
   Pdf01Icon,
   ColorsIcon,
+  GlobeIcon,
 };
 
 interface ToolCardProps {
