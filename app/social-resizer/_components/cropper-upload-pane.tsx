@@ -12,6 +12,9 @@ interface CropperUploadPaneProps {
   onFileSelect: (file: File) => void;
 }
 
+const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
+const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB
+
 export function CropperUploadPane({
   imageSrc,
   selectedFileName,
@@ -19,12 +22,45 @@ export function CropperUploadPane({
   onFileSelect,
 }: CropperUploadPaneProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+
+  const validateAndProcessFile = (file: File) => {
+    setErrorMsg(null);
+
+    // 1. Check exact mime type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      setErrorMsg("Unsupported format. Only PNG, JPG, WebP, and AVIF are allowed.");
+      return;
+    }
+
+    // 2. Check 25MB size limit
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setErrorMsg("File is too large. Maximum allowed size is 25MB.");
+      return;
+    }
+
+    onFileSelect(file);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      onFileSelect(file);
+    if (file) {
+      validateAndProcessFile(file);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      validateAndProcessFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   return (
@@ -33,13 +69,15 @@ export function CropperUploadPane({
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept="image/*"
+        accept="image/png,image/jpeg,image/webp,image/avif"
         className="hidden"
       />
 
       {!imageSrc ? (
         <div
           onClick={() => fileInputRef.current?.click()}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
           className="border-2 border-dashed border-border hover:border-primary/60 hover:bg-secondary/30 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
         >
           <div className="size-12 rounded-lg bg-secondary text-primary flex items-center justify-center mb-3">
@@ -51,6 +89,11 @@ export function CropperUploadPane({
           <p className="text-xs text-muted-foreground mt-1">
             Supports PNG, JPG, WebP, AVIF up to 25MB
           </p>
+          {errorMsg && (
+            <p className="text-xs text-rose-500 font-medium mt-2.5 bg-rose-500/10 px-2.5 py-1 rounded border border-rose-500/20">
+              {errorMsg}
+            </p>
+          )}
         </div>
       ) : (
         <div className="flex items-center justify-between gap-4">
