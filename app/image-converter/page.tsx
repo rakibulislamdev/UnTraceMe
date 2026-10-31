@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 export default function ImageConverterPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      {/* Header Eyebrow & Title (Server Rendered for SEO) */}
+      {/* Header Eyebrow & Title (Linear Style) */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <Exchange01Icon className="size-4" />
-          <span>Module 06</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <Exchange01Icon className="size-3.5" />
+          <span>MODULE 06 — FORMAT CONVERTER</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           Batch Image Converter
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Convert high-resolution images in batches up to 10 images between WebP, PNG, JPEG, AVIF, and BMP entirely on your device with instant processing and single-click ZIP archive packaging.
         </p>
       </div>

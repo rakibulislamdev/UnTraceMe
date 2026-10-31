@@ -13,14 +13,14 @@ export default function PdfOrganizerPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <Pdf01Icon className="size-4" />
-          <span>Module 08</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <Pdf01Icon className="size-3.5" />
+          <span>MODULE 10 — PDF WORKBENCH</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           PDF Split & Page Organizer
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Select individual pages, rotate 90°/180°, extract required sheets into a new PDF, or split every single page into an individual download.
         </p>
       </div>

@@ -13,14 +13,14 @@ export default function SvgOptimizerPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <ImageCompositionIcon className="size-4" />
-          <span>Module 07</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <ImageCompositionIcon className="size-3.5" />
+          <span>MODULE 09 — VECTOR MINIFIER</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           SVG Optimizer & Minifier
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Compress SVG files up to 70% by stripping XML editor namespaces, useless metadata, and comments entirely on your device with instant download.
         </p>
       </div>

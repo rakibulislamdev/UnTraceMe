@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 export default function FaviconGeneratorPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      {/* Header Eyebrow & Title (Server Rendered for SEO) */}
+      {/* Header Eyebrow & Title (Linear Style) */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <Layers01Icon className="size-4" />
-          <span>Module 06</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <Layers01Icon className="size-3.5" />
+          <span>MODULE 11 — ICON SUITE</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           Favicon & App Icon Pack Generator
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Convert any logo or artwork into a production-ready web icon suite. Generates binary <code className="text-foreground font-mono">favicon.ico</code> (16, 32, 48), Apple Touch icons, Android PWA assets, and copy-paste HTML tags.
         </p>
       </div>

@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 export default function BgRemoverPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      {/* Header Eyebrow & Title */}
+      {/* Header Eyebrow & Title (Linear Style) */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <SparklesIcon className="size-4" />
-          <span>Module 07</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <SparklesIcon className="size-3.5" />
+          <span>MODULE 07 — NEURAL SEGMENTATION</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           Image Background Remover
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Remove backgrounds from photos instantly with on-device processing. 100% private with custom backdrop colors or transparent PNG export.
         </p>
       </div>

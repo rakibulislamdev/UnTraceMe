@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 export default function PromptCleanerPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      {/* Header Eyebrow & Title (Server Rendered for SEO) */}
+      {/* Header Eyebrow & Title (Linear Style) */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <SecurityLockIcon className="size-4" />
-          <span>Module 03</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <SecurityLockIcon className="size-3.5" />
+          <span>MODULE 03 — TOKEN SANITIZER</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           AI Prompt Scrubber & Sanitizer
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Sanitize shared prompts by eliminating adversarial jailbreaks, hidden watermarks, zero-width tracking characters, and accidental API key leaks.
         </p>
       </div>

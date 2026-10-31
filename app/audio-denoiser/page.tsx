@@ -18,16 +18,16 @@ export const metadata: Metadata = {
 export default function AudioDenoiserPage() {
   return (
     <div className="flex-1 flex flex-col py-8 md:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-      {/* Header Eyebrow & Title */}
+      {/* Header Eyebrow & Title (Linear Style) */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-          <AiVoiceIcon className="size-4" />
-          <span>Module 04</span>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-primary uppercase tracking-wider mb-2">
+          <AiVoiceIcon className="size-3.5" />
+          <span>MODULE 04 — ACOUSTIC HARMONIZER</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground tracking-[-0.03em]">
           Voice AI Artifact Filter & Harmonizer
         </h1>
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl leading-relaxed tracking-tight">
           Soften synthetic metallic voiceover sheen, eliminate inaudible ultrasonic watermarks, and restore natural acoustic warmth to AI speech.
         </p>
       </div>

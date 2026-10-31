@@ -36,25 +36,27 @@ export function ToolsSuiteSection({ tools }: ToolsSuiteSectionProps) {
     : tools.filter((tool) => tool.category === selectedCategory);
 
   return (
-    <section className="py-10 md:py-14 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
+    <section className="py-12 md:py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
       {/* Header and Bottom-Line Tab Bar */}
-      <div className="mb-8 space-y-5 pb-5 border-b border-border">
-        <div>
-          <span className="text-xs uppercase tracking-wide text-primary font-semibold flex items-center gap-1.5">
-            <span className="size-1.5 rounded-full bg-primary" />
-            Available Modules ({tools.length})
-          </span>
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground mt-1">
-            Anti-Detection & Media Engines
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            All tools run with zero data storage or signups
-          </p>
+      <div className="mb-10 space-y-6 pb-6 border-b border-border">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span className="text-xs font-mono uppercase tracking-wider text-primary flex items-center gap-2 font-medium">
+              <span className="size-1.5 rounded-full bg-primary" />
+              SYSTEM MODULES — {tools.length} AVAILABLE
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] text-foreground mt-2">
+              Media Sanitization & AI Rewrite Engines
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1 tracking-tight">
+              Client-executed processing with zero server logs, telemetry, or storage.
+            </p>
+          </div>
         </div>
 
-        {/* Tab on its own single bottom line */}
+        {/* Linear Filter Pills */}
         <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <div className="relative inline-flex items-center p-1 rounded-full bg-secondary/80 border border-border/60 shadow-inner backdrop-blur-md min-w-max">
+          <div className="relative inline-flex items-center gap-1.5 p-1 rounded-full bg-secondary border border-border min-w-max">
             {categories.map((tab) => {
               const Icon = tab.icon;
               const isActive = selectedCategory === tab.id;
@@ -65,33 +67,31 @@ export function ToolsSuiteSection({ tools }: ToolsSuiteSectionProps) {
                   onClick={() => setSelectedCategory(tab.id as CategoryFilter)}
                   type="button"
                   className={cn(
-                    "relative z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors duration-200 select-none cursor-pointer",
+                    "relative z-10 inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-150 select-none cursor-pointer",
                     isActive
-                      ? "text-primary-foreground font-semibold"
+                      ? "text-white"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {/* Apple Sliding Pill Spring Indicator with Brand Primary Color */}
                   {isActive && (
                     <motion.div
-                      layoutId="apple-modules-tab-indicator"
+                      layoutId="linear-modules-tab-indicator"
                       className="absolute inset-0 z-[-1] rounded-full bg-primary shadow-xs"
                       transition={{
                         type: "spring",
-                        stiffness: 500,
-                        damping: 38,
-                        mass: 0.8,
+                        stiffness: 450,
+                        damping: 35,
                       }}
                     />
                   )}
-                  <Icon className={cn("size-3.5 -mt-px shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
+                  <Icon className={cn("size-3.5 shrink-0", isActive ? "text-white" : "text-muted-foreground")} />
                   <span>{tab.label}</span>
                   <span
                     className={cn(
-                      "text-[10px] px-1.5 py-0.2 rounded-full font-mono transition-colors",
+                      "text-[10px] px-1.5 py-0.5 rounded-full font-mono transition-colors",
                       isActive
-                        ? "bg-primary-foreground/20 text-primary-foreground"
-                        : "bg-background/50 text-muted-foreground"
+                        ? "bg-white/20 text-white"
+                        : "bg-card text-muted-foreground border border-border"
                     )}
                   >
                     {tab.count}
@@ -103,8 +103,8 @@ export function ToolsSuiteSection({ tools }: ToolsSuiteSectionProps) {
         </div>
       </div>
 
-      {/* Compact 3-Column Responsive Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      {/* Linear 3-Column Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredTools.map((tool) => (
           <ToolCard key={tool.id} tool={tool} />
         ))}

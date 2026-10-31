@@ -38,10 +38,10 @@ export function ToolCard({ tool, className }: ToolCardProps) {
   return (
     <Card
       className={cn(
-        "group relative flex flex-col justify-between p-4 sm:p-5 rounded-xl border-border bg-card transition-all duration-200",
+        "group relative flex flex-col justify-between p-5 sm:p-6 rounded-lg border border-border bg-card transition-all duration-200",
         tool.isReady
-          ? "hover:border-primary/50 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
-          : "opacity-65 hover:border-border cursor-pointer",
+          ? "hover:border-primary/50 hover:bg-secondary/40 hover:-translate-y-0.5 cursor-pointer shadow-none hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+          : "opacity-60 hover:border-border cursor-pointer",
         className
       )}
     >
@@ -50,26 +50,18 @@ export function ToolCard({ tool, className }: ToolCardProps) {
         className="flex flex-col h-full justify-between"
       >
         <div>
-          <div className="flex items-center justify-between mb-3.5">
-            <div className="size-9 rounded-lg bg-accent text-accent-foreground flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+          <div className="flex items-center justify-between mb-4">
+            <div className="size-9 rounded-md bg-secondary text-primary border border-border/70 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
               <IconComponent className="size-4.5 text-primary" />
             </div>
             {tool.badge && (
               <Badge
-                variant={
-                  tool.badge === "Popular"
-                    ? "default"
-                    : tool.badge === "New"
-                    ? "default"
-                    : tool.badge === "100% Free"
-                    ? "outline"
-                    : "secondary"
-                }
+                variant="outline"
                 className={cn(
-                  "text-[10px] px-2 py-0.5 font-medium tracking-tight",
-                  tool.badge === "New" && "bg-primary text-primary-foreground",
-                  tool.badge === "100% Free" && "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5",
-                  tool.badge === "Coming Soon" && "bg-muted text-muted-foreground border-border"
+                  "text-[10px] px-2 py-0.5 font-medium rounded-full",
+                  tool.badge === "New" && "bg-primary text-white border-transparent",
+                  tool.badge === "100% Free" && "border-border text-foreground bg-secondary",
+                  tool.badge === "Coming Soon" && "bg-secondary text-muted-foreground border-border"
                 )}
               >
                 {tool.badge}
@@ -77,7 +69,7 @@ export function ToolCard({ tool, className }: ToolCardProps) {
             )}
           </div>
 
-          <h3 className="text-sm font-semibold text-foreground tracking-tight mb-1.5 group-hover:text-primary transition-colors">
+          <h3 className="text-base font-medium text-foreground tracking-[-0.015em] mb-1.5 group-hover:text-primary transition-colors">
             {tool.title}
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
@@ -85,9 +77,14 @@ export function ToolCard({ tool, className }: ToolCardProps) {
           </p>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px] font-medium text-muted-foreground group-hover:text-primary transition-colors">
-          <span>{tool.isReady ? "Open Tool Workspace" : "Coming Soon"}</span>
-          <ArrowRight01Icon className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+        <div className="mt-5 pt-3.5 border-t border-border flex items-center justify-between text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+          <span className="font-mono text-[10px] text-muted-foreground uppercase">
+            {tool.category}
+          </span>
+          <span className="inline-flex items-center gap-1 font-medium text-primary text-xs">
+            {tool.isReady ? "Open module" : "In queue"}
+            <ArrowRight01Icon className="size-3 transition-transform duration-150 group-hover:translate-x-0.5" />
+          </span>
         </div>
       </Link>
     </Card>

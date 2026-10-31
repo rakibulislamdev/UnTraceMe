@@ -155,10 +155,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "Social Media Smart Cropper",
     description: "Auto-adapt visuals to YouTube, Instagram, X/Twitter, and LinkedIn aspect ratios locally.",
     slug: "/social-resizer",
-    badge: "Coming Soon",
+    badge: "New",
     category: "image",
     iconName: "ImageCompositionIcon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "palette-extractor",

@@ -128,8 +128,8 @@ export function SiteNavbar() {
   const isMoreActive = moreTools.some((t) => t.active);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-md transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur-md transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group select-none shrink-0">
           <div className="size-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5 active:scale-[0.98]">

@@ -69,39 +69,39 @@ html, body, * {
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Surfaces - Slate/Zinc inspired subtle warmth */
-  --background: #fafafc;
-  --foreground: #09090b;
-  --card: #ffffff;
-  --card-foreground: #09090b;
+  /* Surfaces - Linear Light / Inverse Canvas */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #f5f6f6;
+  --card-foreground: #000000;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
+  --popover-foreground: #000000;
 
-  /* Primary Brand - Refined Electric Indigo/Violet */
-  --primary: #4f46e5;
+  /* Primary Brand - Signature Linear Lavender-blue */
+  --primary: #5e6ad2;
   --primary-foreground: #ffffff;
 
   /* Secondary & Muted */
-  --secondary: #f4f4f7;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f7;
-  --muted-foreground: #71717a;
+  --secondary: #f6f7f7;
+  --secondary-foreground: #18191a;
+  --muted: #f5f6f6;
+  --muted-foreground: #62666d;
 
   /* Accent & Status */
-  --accent: #eef2ff;
-  --accent-foreground: #4338ca;
+  --accent: #f0f2ff;
+  --accent-foreground: #5e6ad2;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --success: #10b981;
+  --success: #27a644;
   --warning: #f59e0b;
 
   /* Borders & Controls */
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #6366f1;
+  --border: #e2e4e9;
+  --input: #e2e4e9;
+  --ring: #5e6ad2;
 
-  /* Radii */
-  --radius: 0.625rem;
+  /* Radii - Linear standard md: 8px */
+  --radius: 0.5rem;
 
   /* Ad container tokens */
   --ad-bg: #f8fafc;
@@ -109,40 +109,40 @@ html, body, * {
 }
 
 .dark {
-  /* Deep Slate/Zinc intentional dark mode - Linear/Raycast style */
-  --background: #09090b;
-  --foreground: #f4f4f5;
-  --card: #111115;
-  --card-foreground: #f4f4f5;
-  --popover: #111115;
-  --popover-foreground: #f4f4f5;
+  /* Linear signature deep dark canvas */
+  --background: #010102;
+  --foreground: #f7f8f8;
+  --card: #0f1011;
+  --card-foreground: #f7f8f8;
+  --popover: #0f1011;
+  --popover-foreground: #f7f8f8;
 
   /* Primary Brand in Dark */
-  --primary: #6366f1;
+  --primary: #5e6ad2;
   --primary-foreground: #ffffff;
 
-  /* Secondary & Muted */
-  --secondary: #18181d;
-  --secondary-foreground: #f4f4f5;
-  --muted: #18181d;
-  --muted-foreground: #a1a1aa;
+  /* Secondary & Muted surfaces */
+  --secondary: #141516;
+  --secondary-foreground: #f7f8f8;
+  --muted: #18191a;
+  --muted-foreground: #8a8f98;
 
   /* Accent & Status */
-  --accent: #1e1b4b;
-  --accent-foreground: #a5b4fc;
+  --accent: #191a24;
+  --accent-foreground: #828fff;
   --destructive: #7f1d1d;
   --destructive-foreground: #fef2f2;
-  --success: #059669;
+  --success: #27a644;
   --warning: #d97706;
 
   /* Hairline Borders & Controls */
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.12);
-  --ring: #818cf8;
+  --border: #23252a;
+  --input: #23252a;
+  --ring: #5e6ad2;
 
   /* Ad tokens in Dark */
-  --ad-bg: #0d0d12;
-  --ad-border: rgba(255, 255, 255, 0.08);
+  --ad-bg: #0f1011;
+  --ad-border: #23252a;
 }
 
 @theme inline {
