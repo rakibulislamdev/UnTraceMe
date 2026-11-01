@@ -80,9 +80,9 @@ export function DocumentAuditPane({
               </span>
             </div>
           </div>
-          <Badge variant="outline" className="text-[10px] border-rose-500/30 text-rose-400 bg-rose-500/10 font-mono shrink-0">
+          <span className="font-mono text-[11px] text-rose-400 font-medium shrink-0">
             Watermarked
-          </Badge>
+          </span>
         </Card>
       ) : (
         <Card className="p-6 rounded-xl border border-border bg-card h-[92px] flex items-center justify-between">
