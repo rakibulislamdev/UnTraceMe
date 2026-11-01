@@ -115,10 +115,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "AI Video & Reel Sanitizer",
     description: "Strip EXIF, camera geolocation, and AI-generation markers from MP4 and WebM videos client-side.",
     slug: "/video-sanitizer",
-    badge: "Coming Soon",
+    badge: "New",
     category: "security",
     iconName: "SecurityLockIcon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "document-watermark-cleaner",
