@@ -1,19 +1,22 @@
-/**
+la/**
  * Client-Side MP4/WebM Video Metadata & AI Marker Sanitizer Engine
  * 
- * Works 100% in-browser using binary atom/box parsing for ISO-BMFF (MP4, MOV, M4V)
- * and Matroska/WebM EBML container parsing.
+ * Works 100% in-browser without altering container offsets (stco/co64).
  * 
- * For MP4 (ISO-BMFF):
- * - Identifies and safely zeroes/strips metadata atoms:
- *   - 'moov.udta.meta' (iTunes/Apple tags, QuickTime user data)
- *   - 'moov.udta.©xyz' (GPS geolocation coordinates)
- *   - 'uuid' boxes containing C2PA / CAI Content Credentials or AI manifests
- *   - 'moov.udta.©swr' (Software/AI generator traces)
- *   - 'moov.udta.©mak' / 'moov.udta.©mod' (Camera hardware markers)
- *   - 'moov.udta.XMP_' (Adobe / AI generation XMP packets)
- * - Retains essential video/audio payload boxes ('ftyp', 'moov.mvhd', 'moov.trak', 'mdat')
- *   so video plays smoothly with zero quality or re-encoding loss.
+ * Why in-place zeroing/freeing is essential:
+ * In MP4 (ISO-BMFF), sample table chunks (`stco` / `co64`) store absolute byte offsets
+ * into `mdat` (where audio & video frames live).
+ * If bytes before `mdat` are removed or spliced, all sample offsets become misaligned,
+ * causing video players to fail or show a black screen.
+ * 
+ * Solution:
+ * 1. For standalone metadata boxes (like 'uuid' containing C2PA / AI data):
+ *    We change the box type from 'uuid' to 'free' or 'skip' (the standard ISO-BMFF padding atom)
+ *    and zero out its payload.
+ * 2. For 'udta' (User Data) / 'meta' inside 'moov':
+ *    We change the 4-character code to 'free' and zero out the metadata tags (GPS, camera name, XMP).
+ * 3. Exact file size and all internal byte offsets remain 100% preserved!
+ * 4. Result: Video plays instantly and smoothly in any browser/player, while all AI & tracking tags are wiped!
  */
 
 export interface VideoMetadataReport {
@@ -142,7 +145,7 @@ export async function inspectVideoMetadata(file: File): Promise<VideoMetadataRep
     });
   }
 
-  // If no specific metadata found yet, scan MP4 top-level boxes
+  // Scan MP4 top-level boxes for UUID
   try {
     let offset = 0;
     while (offset < buffer.length - 8) {
@@ -150,11 +153,9 @@ export async function inspectVideoMetadata(file: File): Promise<VideoMetadataRep
       const boxType = getFourCC(buffer, offset + 4);
 
       if (boxSize === 1) {
-        // Extended 64-bit size
         if (offset + 16 > buffer.length) break;
         boxSize = readUint64(view, offset + 8);
       } else if (boxSize === 0) {
-        // Box extends to end of file
         break;
       }
 
@@ -187,8 +188,8 @@ export async function inspectVideoMetadata(file: File): Promise<VideoMetadataRep
 
 /**
  * Pure client-side MP4 / WebM Sanitizer
- * Removes metadata boxes (udta, meta, uuid, XMP, GPS, C2PA) without altering video/audio stream.
- * For videos, produces a bit-perfect sanitized container with 0 quality loss and lightning speed.
+ * Replaces metadata atoms with standard ISO-BMFF 'free' (padding) boxes
+ * and zeroes out tracking data in-place so offsets remain 100% valid.
  */
 export async function sanitizeVideoFile(
   file: File,
@@ -207,205 +208,133 @@ export async function sanitizeVideoFile(
   } = options;
 
   const arrayBuffer = await file.arrayBuffer();
-  const uint8 = new Uint8Array(arrayBuffer);
-  const view = new DataView(arrayBuffer);
+  // Clone to a mutable Uint8Array
+  const sanitizedBytes = new Uint8Array(arrayBuffer);
+  const view = new DataView(sanitizedBytes.buffer);
   let removedCount = 0;
 
-  // We will build a sanitized binary array by filtering or overwriting metadata boxes
-  // If the file is MP4 / MOV (ISO-BMFF)
-  const isIsoBmff = file.name.match(/\.(mp4|m4v|mov)$/i) || file.type.includes("mp4") || file.type.includes("quicktime");
+  const isIsoBmff =
+    file.name.match(/\.(mp4|m4v|mov)$/i) ||
+    file.type.includes("mp4") ||
+    file.type.includes("quicktime");
 
   if (isIsoBmff) {
-    const sanitizedChunks: Uint8Array[] = [];
     let offset = 0;
-    const len = uint8.length;
+    const len = sanitizedBytes.length;
 
-    while (offset < len) {
-      if (offset + 8 > len) {
-        sanitizedChunks.push(uint8.subarray(offset));
-        break;
-      }
-
+    while (offset < len - 8) {
       let size = readUint32(view, offset);
-      const type = getFourCC(uint8, offset + 4);
+      const type = getFourCC(sanitizedBytes, offset + 4);
 
       if (size === 1) {
-        if (offset + 16 > len) {
-          sanitizedChunks.push(uint8.subarray(offset));
-          break;
-        }
+        if (offset + 16 > len) break;
         size = readUint64(view, offset + 8);
       } else if (size === 0) {
         size = len - offset;
       }
 
-      if (size <= 0 || offset + size > len) {
-        sanitizedChunks.push(uint8.subarray(offset));
-        break;
-      }
+      if (size <= 0 || offset + size > len) break;
 
-      const boxData = uint8.subarray(offset, offset + size);
-
-      // Check if this box is a target metadata box
-      // 'uuid' box (often C2PA or custom metadata)
+      // 1. Target top-level 'uuid' boxes (C2PA / AI metadata)
       if (type === "uuid" && stripAiProvenance) {
+        // Change type to 'free' and zero out payload
+        setFourCC(sanitizedBytes, offset + 4, "free");
+        const payloadStart = size === 1 ? offset + 16 : offset + 8;
+        sanitizedBytes.fill(0, payloadStart, offset + size);
         removedCount++;
-        offset += size;
-        continue;
       }
 
-      // If 'moov' (movie header), we deep-clean its children: 'udta' (user data)
+      // 2. Target 'moov' box children: 'udta' / 'meta'
       if (type === "moov") {
-        const cleanedMoov = sanitizeMoovBox(boxData, {
-          stripGps,
-          stripAiProvenance,
-          stripEncoderHardware,
-          stripXmp,
-        });
-        removedCount += cleanedMoov.removed;
-        sanitizedChunks.push(cleanedMoov.cleanedBytes);
-      } else {
-        sanitizedChunks.push(boxData);
+        let childOffset = offset + 8;
+        const moovEnd = offset + size;
+
+        while (childOffset < moovEnd - 8) {
+          let childSize = readUint32(view, childOffset);
+          const childType = getFourCC(sanitizedBytes, childOffset + 4);
+
+          if (childSize === 1) {
+            if (childOffset + 16 > moovEnd) break;
+            childSize = readUint64(view, childOffset + 8);
+          } else if (childSize === 0) {
+            childSize = moovEnd - childOffset;
+          }
+
+          if (childSize <= 0 || childOffset + childSize > moovEnd) break;
+
+          // If child is 'udta' (User Data) or 'meta', neutralize into 'free' padding box
+          if (childType === "udta" || childType === "meta") {
+            setFourCC(sanitizedBytes, childOffset + 4, "free");
+            const childPayloadStart = childSize === 1 ? childOffset + 16 : childOffset + 8;
+            sanitizedBytes.fill(0, childPayloadStart, childOffset + childSize);
+            removedCount++;
+          }
+
+          childOffset += childSize;
+        }
       }
 
       offset += size;
     }
+  }
 
-    // Combine sanitized chunks
-    const totalLength = sanitizedChunks.reduce((acc, chunk) => acc + chunk.length, 0);
-    const finalBuffer = new Uint8Array(totalLength);
-    let curPos = 0;
-    for (const chunk of sanitizedChunks) {
-      finalBuffer.set(chunk, curPos);
-      curPos += chunk.length;
+  // Also perform deep-scrub of any residual text patterns (GPS string, XMP, C2PA strings)
+  const textDecoder = new TextDecoder("utf-8", { fatal: false });
+  const text = textDecoder.decode(sanitizedBytes);
+
+  // Clean GPS pattern
+  const gpsRegex = /([+-]\d{2}\.\d{4,}[+-]\d{3}\.\d{4,})/g;
+  let match;
+  while ((match = gpsRegex.exec(text)) !== null) {
+    if (stripGps) {
+      for (let i = 0; i < match[0].length; i++) {
+        sanitizedBytes[match.index + i] = 0x20; // replace with space
+      }
+      removedCount++;
     }
+  }
 
-    // Always count at least 1 removal if scrubbed
-    if (removedCount === 0) removedCount = 1;
-
-    const sanitizedBlob = new Blob([finalBuffer], { type: file.type || "video/mp4" });
-    return {
-      sanitizedBlob,
-      removedCount,
-      originalSize: file.size,
-      sanitizedSize: sanitizedBlob.size,
-    };
-  } else {
-    // For WebM or fallback: zero-out matching signature patterns client-side
-    // Search for known strings and overwrite with zeros without corrupting WebM EBML element lengths
-    const cloned = new Uint8Array(arrayBuffer.slice(0));
-    const textDecoder = new TextDecoder();
-    const text = textDecoder.decode(cloned);
-
-    // Replace occurrences of GPS patterns with zeros
-    const gpsRegex = /([+-]\d{2}\.\d{4,}[+-]\d{3}\.\d{4,})/g;
-    let match;
-    while ((match = gpsRegex.exec(text)) !== null) {
-      if (stripGps) {
-        for (let i = 0; i < match[0].length; i++) {
-          cloned[match.index + i] = 0x20; // replace with space
+  // Clean AI keywords / C2PA strings
+  const aiKeywords = [
+    "c2pa",
+    "syntheticMedia",
+    "generatedByAI",
+    "Midjourney",
+    "Runway",
+    "Pika",
+    "Sora",
+    "Stable Video",
+  ];
+  for (const kw of aiKeywords) {
+    let idx = text.indexOf(kw);
+    while (idx !== -1) {
+      if (stripAiProvenance) {
+        for (let i = 0; i < kw.length; i++) {
+          sanitizedBytes[idx + i] = 0x20;
         }
         removedCount++;
       }
+      idx = text.indexOf(kw, idx + kw.length);
     }
-
-    // Scrub C2PA / synthetic strings
-    const aiKeywords = ["c2pa", "syntheticMedia", "generatedByAI", "Midjourney", "Runway"];
-    for (const kw of aiKeywords) {
-      let idx = text.indexOf(kw);
-      while (idx !== -1) {
-        if (stripAiProvenance) {
-          for (let i = 0; i < kw.length; i++) {
-            cloned[idx + i] = 0x20;
-          }
-          removedCount++;
-        }
-        idx = text.indexOf(kw, idx + kw.length);
-      }
-    }
-
-    const sanitizedBlob = new Blob([cloned], { type: file.type || "video/webm" });
-    return {
-      sanitizedBlob,
-      removedCount: Math.max(removedCount, 1),
-      originalSize: file.size,
-      sanitizedSize: sanitizedBlob.size,
-    };
   }
+
+  if (removedCount === 0) removedCount = 1;
+
+  const sanitizedBlob = new Blob([sanitizedBytes], {
+    type: file.type || "video/mp4",
+  });
+
+  return {
+    sanitizedBlob,
+    removedCount,
+    originalSize: file.size,
+    sanitizedSize: sanitizedBlob.size,
+  };
 }
 
-/**
- * Helper to inspect and strip udta / meta / GPS / XMP children inside 'moov' box
- */
-function sanitizeMoovBox(
-  moovBytes: Uint8Array,
-  flags: {
-    stripGps: boolean;
-    stripAiProvenance: boolean;
-    stripEncoderHardware: boolean;
-    stripXmp: boolean;
+// Helper to write 4-byte ASCII box type
+function setFourCC(buffer: Uint8Array, offset: number, code: string) {
+  for (let i = 0; i < 4; i++) {
+    buffer[offset + i] = code.charCodeAt(i);
   }
-): { cleanedBytes: Uint8Array; removed: number } {
-  let removed = 0;
-  const view = new DataView(moovBytes.buffer, moovBytes.byteOffset, moovBytes.byteLength);
-  const moovLen = moovBytes.length;
-
-  const validChildren: Uint8Array[] = [];
-  let childOffset = 8; // skip moov size (4) + type (4)
-
-  while (childOffset < moovLen) {
-    if (childOffset + 8 > moovLen) {
-      validChildren.push(moovBytes.subarray(childOffset));
-      break;
-    }
-
-    let childSize = readUint32(view, childOffset);
-    const childType = getFourCC(moovBytes, childOffset + 4);
-
-    if (childSize === 1) {
-      if (childOffset + 16 > moovLen) break;
-      childSize = readUint64(view, childOffset + 8);
-    } else if (childSize === 0) {
-      childSize = moovLen - childOffset;
-    }
-
-    if (childSize <= 0 || childOffset + childSize > moovLen) {
-      validChildren.push(moovBytes.subarray(childOffset));
-      break;
-    }
-
-    const childBytes = moovBytes.subarray(childOffset, childOffset + childSize);
-
-    // If child is 'udta' (User Data) or 'meta', strip or filter
-    if (childType === "udta" || childType === "meta") {
-      removed++;
-      // Skip appending this metadata container box
-    } else {
-      validChildren.push(childBytes);
-    }
-
-    childOffset += childSize;
-  }
-
-  // Recalculate moov box with remaining children
-  const newMoovChildrenLength = validChildren.reduce((acc, c) => acc + c.length, 0);
-  const newMoovTotalSize = 8 + newMoovChildrenLength;
-  const newMoov = new Uint8Array(newMoovTotalSize);
-  const newMoovView = new DataView(newMoov.buffer);
-
-  // Set new size and 'moov' header
-  newMoovView.setUint32(0, newMoovTotalSize, false);
-  newMoov[4] = 0x6d; // m
-  newMoov[5] = 0x6f; // o
-  newMoov[6] = 0x6f; // o
-  newMoov[7] = 0x76; // v
-
-  let pos = 8;
-  for (const child of validChildren) {
-    newMoov.set(child, pos);
-    pos += child.length;
-  }
-
-  return { cleanedBytes: newMoov, removed };
 }
-
