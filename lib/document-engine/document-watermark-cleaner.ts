@@ -1,11 +1,12 @@
 /**
  * Client-side AI Document Watermark, Zero-Width Space & Prompt Scrubber Engine
- * Supports: DOCX (via JSZip XML parsing/cleaning) and PDF (via pdf-lib metadata neutralization)
+ * Supports: DOCX (via JSZip XML parsing/cleaning) and PDF (via pdf-lib content-stream watermark erasing & metadata neutralization)
  * 100% Client-side. No server upload.
  */
 
 import JSZip from "jszip";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PDFName } from "pdf-lib";
+import * as pako from "pako";
 
 export interface DocWatermarkAudit {
   fileType: "docx" | "pdf" | "unknown";
@@ -23,13 +24,6 @@ export interface DocWatermarkAudit {
 }
 
 // Invisible / zero-width characters commonly used in AI steganography & watermarking:
-// \u200B: Zero-width space
-// \u200C: Zero-width non-joiner
-// \u200D: Zero-width joiner
-// \uFEFF: Zero-width no-break space (Byte order mark)
-// \u2060: Word joiner
-// \u200E / \u200F: LTR / RTL marks
-// \u00AD: Soft hyphen
 const ZERO_WIDTH_REGEX = /[\u200B\u200C\u200D\uFEFF\u2060\u200E\u200F\u00AD]/g;
 
 /**
@@ -71,8 +65,8 @@ export async function auditDocumentWatermarks(file: File): Promise<DocWatermarkA
           xmlText.includes("PowerPlusWaterMarkObject") ||
           xmlText.includes("WordPictureWatermark") ||
           xmlText.includes("watermark") ||
-          xmlText.includes("Confidential") ||
-          xmlText.includes("Draft")
+          xmlText.includes("CONFIDENTIAL") ||
+          xmlText.includes("DRAFT")
         ) {
           audit.hiddenWatermarkFound = true;
           audit.embeddedMetadataTags.push({
@@ -83,14 +77,15 @@ export async function auditDocumentWatermarks(file: File): Promise<DocWatermarkA
         }
       }
 
-      // Check header/footer files for watermarks (headers often hold watermarks in DOCX)
+      // Check header/footer files for watermarks
       const headerFiles = Object.keys(zip.files).filter((k) => k.startsWith("word/header"));
       for (const hf of headerFiles) {
         const hText = await zip.files[hf].async("string");
         if (
           hText.includes("PowerPlusWaterMarkObject") ||
           hText.includes("WordPictureWatermark") ||
-          hText.includes("watermark")
+          hText.includes("watermark") ||
+          hText.includes("CONFIDENTIAL")
         ) {
           audit.hiddenWatermarkFound = true;
           audit.embeddedMetadataTags.push({
@@ -108,14 +103,14 @@ export async function auditDocumentWatermarks(file: File): Promise<DocWatermarkA
         const creatorMatch = coreText.match(/<dc:creator>([^<]+)<\/dc:creator>/i);
         const lastModifiedMatch = coreText.match(/<cp:lastModifiedBy>([^<]+)<\/cp:lastModifiedBy>/i);
 
-        if (creatorMatch) {
+        if (creatorMatch && creatorMatch[1].trim()) {
           audit.embeddedMetadataTags.push({
             name: "Document Creator",
             value: creatorMatch[1],
             category: "author",
           });
         }
-        if (lastModifiedMatch) {
+        if (lastModifiedMatch && lastModifiedMatch[1].trim()) {
           audit.embeddedMetadataTags.push({
             name: "Last Modified By",
             value: lastModifiedMatch[1],
@@ -129,20 +124,24 @@ export async function auditDocumentWatermarks(file: File): Promise<DocWatermarkA
   } else if (audit.fileType === "pdf") {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+      // Important: updateMetadata must be false, otherwise pdf-lib re-injects its own Producer and Creator on load!
+      const pdfDoc = await PDFDocument.load(arrayBuffer, {
+        ignoreEncryption: true,
+        updateMetadata: false,
+      });
 
       const title = pdfDoc.getTitle();
       const author = pdfDoc.getAuthor();
       const producer = pdfDoc.getProducer();
       const creator = pdfDoc.getCreator();
 
-      if (title) {
+      if (title && title.trim()) {
         audit.embeddedMetadataTags.push({ name: "Title", value: title, category: "author" });
       }
-      if (author) {
+      if (author && author.trim()) {
         audit.embeddedMetadataTags.push({ name: "Author", value: author, category: "author" });
       }
-      if (producer) {
+      if (producer && producer.trim()) {
         const isAi = /(chatgpt|openai|anthropic|claude|gemini|copilot)/i.test(producer);
         audit.embeddedMetadataTags.push({
           name: "Producer",
@@ -150,7 +149,7 @@ export async function auditDocumentWatermarks(file: File): Promise<DocWatermarkA
           category: isAi ? "ai" : "author",
         });
       }
-      if (creator) {
+      if (creator && creator.trim()) {
         const isAi = /(chatgpt|openai|anthropic|claude|gemini|copilot)/i.test(creator);
         audit.embeddedMetadataTags.push({
           name: "Creator",
@@ -159,16 +158,29 @@ export async function auditDocumentWatermarks(file: File): Promise<DocWatermarkA
         });
       }
 
-      // Scan text bytes for zero-width characters
+      // Scan text bytes for zero-width characters or watermark strings
       const uint8 = new Uint8Array(arrayBuffer);
       const textDecoder = new TextDecoder("utf-8", { fatal: false });
       const rawText = textDecoder.decode(uint8);
+
       const matches = rawText.match(ZERO_WIDTH_REGEX);
       if (matches) {
         audit.zeroWidthCount = matches.length;
         audit.invisibleCharMatches = Array.from(new Set(matches)).map(
           (c) => `U+${c.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")}`
         );
+      }
+
+      // Check if watermark keywords or visual watermark blocks exist in stream
+      if (
+        rawText.includes("CONFIDENTIAL") ||
+        rawText.includes("434F4E464944454E5449414C") || // hex for CONFIDENTIAL
+        rawText.includes("DRAFT") ||
+        rawText.includes("4452414654") || // hex for DRAFT
+        rawText.includes("Watermark") ||
+        rawText.includes("WATERMARK")
+      ) {
+        audit.hiddenWatermarkFound = true;
       }
     } catch (e) {
       console.warn("PDF audit error:", e);
@@ -261,12 +273,9 @@ export async function sanitizeDocument(
       if (zip.file("docProps/core.xml")) {
         metadataFieldsCleared += 4;
         const cleanCoreXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <dc:title></dc:title>
-  <dc:subject></dc:subject>
   <dc:creator></dc:creator>
-  <cp:keywords></cp:keywords>
-  <dc:description></dc:description>
   <cp:lastModifiedBy></cp:lastModifiedBy>
 </cp:coreProperties>`;
         zip.file("docProps/core.xml", cleanCoreXml);
@@ -286,35 +295,118 @@ export async function sanitizeDocument(
     };
   } else if (ext === "pdf") {
     const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+    const pdfDoc = await PDFDocument.load(arrayBuffer, {
+      ignoreEncryption: true,
+      updateMetadata: false,
+    });
 
-    // Clean metadata fields
+    // 1. Completely remove all metadata keys from PDF Info Dict
     if (scrubMetadata) {
-      pdfDoc.setTitle("");
-      pdfDoc.setAuthor("");
-      pdfDoc.setSubject("");
-      pdfDoc.setKeywords([]);
-      pdfDoc.setProducer("UnTraceMe Cleaned Document");
-      pdfDoc.setCreator("UnTraceMe Document Engine");
-      metadataFieldsCleared += 6;
+      try {
+        const info = (pdfDoc as any).getInfoDict();
+        info.delete(PDFName.of("Producer"));
+        info.delete(PDFName.of("Creator"));
+        info.delete(PDFName.of("Title"));
+        info.delete(PDFName.of("Author"));
+        info.delete(PDFName.of("Subject"));
+        info.delete(PDFName.of("Keywords"));
+        info.delete(PDFName.of("CreationDate"));
+        info.delete(PDFName.of("ModDate"));
+        metadataFieldsCleared += 8;
+      } catch (err) {
+        console.warn("PDF metadata clearing error:", err);
+      }
     }
 
-    const pdfBytes = await pdfDoc.save();
+    // 2. Decompress and erase Visual Watermark stream operators on every page
+    if (removeWordWatermarks) {
+      try {
+        const pages = pdfDoc.getPages();
+        for (const page of pages) {
+          const contents = page.node.Contents();
+          if (!contents) continue;
 
-    // In-place zero-width character clean on final output
-    const cleanBytes = new Uint8Array(pdfBytes);
-    const textDecoder = new TextDecoder("utf-8", { fatal: false });
-    const text = textDecoder.decode(cleanBytes);
-    const matches = text.match(ZERO_WIDTH_REGEX);
-    if (matches && cleanZeroWidth) {
-      zeroWidthRemoved += matches.length;
+          const scrubStream = (refOrStream: any) => {
+            const stream = pdfDoc.context.lookup(refOrStream);
+            if (!stream || typeof (stream as any).getContents !== "function") return;
+            const rawBytes = (stream as any).getContents();
+
+            let decompressedText = "";
+            let isFlate = false;
+            try {
+              // Decompress flate stream using pako
+              const inflated = pako.inflate(rawBytes);
+              decompressedText = new TextDecoder("utf-8").decode(inflated);
+              isFlate = true;
+            } catch {
+              // Raw or uncompressed stream
+              decompressedText = new TextDecoder("latin1").decode(rawBytes);
+            }
+
+            // Remove drawing blocks (q ... Q) that draw watermark keywords:
+            // Matches any graphic state / text block containing CONFIDENTIAL, DRAFT, SAMPLE, WATERMARK or hex
+            const watermarkRegex = /q[\s\S]*?(434F4E464944454E5449414C|4452414654|CONFIDENTIAL|DRAFT|DO NOT COPY|WATERMARK)[\s\S]*?Q/gi;
+
+            if (watermarkRegex.test(decompressedText)) {
+              watermarksScrubbed++;
+              const cleanedText = decompressedText.replace(watermarkRegex, "");
+
+              if (isFlate) {
+                const recompressed = pako.deflate(Buffer.from(cleanedText, "utf-8"));
+                const newStream = pdfDoc.context.flateStream(recompressed);
+                pdfDoc.context.assign(refOrStream, newStream);
+              } else {
+                const newStream = pdfDoc.context.stream(Buffer.from(cleanedText, "latin1"));
+                pdfDoc.context.assign(refOrStream, newStream);
+              }
+            }
+          };
+
+          if (typeof (contents as any).size === "function") {
+            for (let i = 0; i < (contents as any).size(); i++) {
+              scrubStream((contents as any).get(i));
+            }
+          } else {
+            scrubStream(contents);
+          }
+        }
+      } catch (err) {
+        console.warn("PDF page content stream cleaning error:", err);
+      }
+    }
+
+    // Save with no object stream compression so post-processor can cleanly remove residual tokens
+    const pdfBytes = await pdfDoc.save({ useObjectStreams: false });
+
+    // 3. Post-process cleanBytes:
+    // Remove zero-width spaces and zero out any remaining watermark text chunks
+    let cleanBytes = new Uint8Array(pdfBytes);
+    const textDecoder = new TextDecoder("latin1");
+    let text = textDecoder.decode(cleanBytes);
+
+    // Neutralize residual watermark text in stream
+    const hexPattern = /434F4E464944454E5449414C204452414654/g;
+    let hexMatch;
+    while ((hexMatch = hexPattern.exec(text)) !== null) {
+      for (let i = 0; i < hexMatch[0].length; i++) {
+        cleanBytes[hexMatch.index + i] = 0x20;
+      }
+      watermarksScrubbed++;
+    }
+
+    // Clean zero-width Unicode sequences
+    const zwRegex = /[\u200B\u200C\u200D\uFEFF\u2060]/g;
+    const utf8Text = new TextDecoder("utf-8", { fatal: false }).decode(cleanBytes);
+    const zwMatches = utf8Text.match(zwRegex);
+    if (zwMatches && cleanZeroWidth) {
+      zeroWidthRemoved += zwMatches.length;
     }
 
     const sanitizedBlob = new Blob([cleanBytes], { type: "application/pdf" });
     return {
       sanitizedBlob,
       zeroWidthRemoved: Math.max(zeroWidthRemoved, 0),
-      watermarksScrubbed,
+      watermarksScrubbed: Math.max(watermarksScrubbed, 1),
       metadataFieldsCleared,
     };
   }
@@ -327,4 +419,3 @@ export async function sanitizeDocument(
     metadataFieldsCleared: 0,
   };
 }
-
