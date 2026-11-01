@@ -125,10 +125,10 @@ export const TOOLS_REGISTRY: ToolItem[] = [
     title: "AI Document Watermark Remover",
     description: "Detect and erase zero-width spaces, hidden watermarking tokens, and prompt traces from DOCX and PDF files.",
     slug: "/document-watermark-cleaner",
-    badge: "Coming Soon",
+    badge: "New",
     category: "security",
     iconName: "FileEditIcon",
-    isReady: false,
+    isReady: true,
   },
   {
     id: "ghost-token-cleaner",
