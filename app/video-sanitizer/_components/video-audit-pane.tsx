@@ -46,7 +46,7 @@ export function VideoAuditPane({
       {isSanitized ? (
         <Card className="p-6 rounded-xl border border-border bg-card h-[92px] flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <CheckmarkCircle02Icon className="size-5 text-emerald-400 shrink-0" />
+            <CheckmarkCircle02Icon className="size-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <span className="text-xs text-foreground font-medium block truncate">
                 All Geolocation & AI Traces Scrubbed
@@ -56,9 +56,9 @@ export function VideoAuditPane({
               </span>
             </div>
           </div>
-          <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-400 bg-emerald-500/10 font-mono shrink-0">
+          <span className="font-mono text-[11px] text-emerald-400 font-medium shrink-0">
             Protected
-          </Badge>
+          </span>
         </Card>
       ) : report.hasGps ? (
         <Card className="p-6 rounded-xl border border-border bg-card h-[92px] flex items-center justify-between">

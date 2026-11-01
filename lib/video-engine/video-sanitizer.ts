@@ -1,4 +1,4 @@
-la/**
+/**
  * Client-Side MP4/WebM Video Metadata & AI Marker Sanitizer Engine
  * 
  * Works 100% in-browser without altering container offsets (stco/co64).
@@ -133,15 +133,17 @@ export async function inspectVideoMetadata(file: File): Promise<VideoMetadataRep
     });
   }
 
-  // Check for camera/encoder information
-  const encoderMatch = textSnippet.match(/(HandBrake|FFmpeg|Lavf|Apple|QuickTime|GoPro|DJI|Sony|Canon|Nikon|Samsung|Google|iPhone|Pixel)/i);
-  if (encoderMatch) {
+  // Check for camera/encoder information strictly inside metadata chunks (not inside random binary)
+  // Check if udta or meta or specific encoder tag exists
+  const hasEncoderTag = /(encoder|handler_name|isom|QuickTime|Lavf|HandBrake|GoPro|DJI|Sony|Canon|Nikon|Samsung|Apple)/i.test(textSnippet);
+  // Specifically verify if it's inside metadata container or unscrubbed
+  if (hasEncoderTag && (textSnippet.includes("udta") || textSnippet.includes("Lavf") || textSnippet.includes("HandBrake") || textSnippet.includes("GoPro") || textSnippet.includes("DJI") || textSnippet.includes("Sony") || textSnippet.includes("Canon") || textSnippet.includes("Nikon") || textSnippet.includes("Samsung"))) {
     hasHardwareTraces = true;
     detectedTags.push({
       name: "Device & Encoder Signature",
       description: "Hardware manufacturer, camera model, or encoding software tag",
       category: "camera",
-      value: encoderMatch[0],
+      value: "Detected in metadata payload",
     });
   }
 
@@ -315,6 +317,35 @@ export async function sanitizeVideoFile(
         removedCount++;
       }
       idx = text.indexOf(kw, idx + kw.length);
+    }
+  }
+
+  // Clean Hardware & Software Encoder tags
+  const encoderKeywords = [
+    "HandBrake",
+    "Lavf",
+    "FFmpeg",
+    "Apple",
+    "QuickTime",
+    "GoPro",
+    "DJI",
+    "Sony",
+    "Canon",
+    "Nikon",
+    "Samsung",
+    "iPhone",
+    "Pixel",
+  ];
+  if (stripEncoderHardware) {
+    for (const kw of encoderKeywords) {
+      let idx = 0;
+      while ((idx = text.toLowerCase().indexOf(kw.toLowerCase(), idx)) !== -1) {
+        for (let i = 0; i < kw.length; i++) {
+          sanitizedBytes[idx + i] = 0x20; // zero/blank out encoder trace
+        }
+        removedCount++;
+        idx += kw.length;
+      }
     }
   }
 

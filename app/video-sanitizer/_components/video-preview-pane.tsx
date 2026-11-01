@@ -55,16 +55,10 @@ export function VideoPreviewPane({
           <span className="font-mono text-xs text-muted-foreground uppercase tracking-tight">
             {isSanitized ? "SANITIZED VIDEO PREVIEW" : "ORIGINAL VIDEO PREVIEW"}
           </span>
-          {isSanitized ? (
-            <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-400 bg-emerald-500/10 font-mono gap-1">
-              <CheckmarkCircle02Icon className="size-3" />
+          {isSanitized && (
+            <span className="font-mono text-[11px] text-emerald-400 font-medium">
               100% Cleaned
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400 bg-amber-500/10 font-mono gap-1">
-              <AlertCircleIcon className="size-3" />
-              Inspection Mode
-            </Badge>
+            </span>
           )}
         </div>
 
@@ -91,10 +85,10 @@ export function VideoPreviewPane({
           <a
             href={sanitizedSrc}
             download={downloadFileName}
-            className="inline-flex items-center justify-center rounded-md font-mono text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-4 gap-1.5 min-w-[200px] transition-colors"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md font-mono text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-4 gap-2 transition-colors shrink-0"
           >
-            <Download04Icon className="size-4" />
-            Download Sanitized Video
+            <Download04Icon className="size-4 shrink-0" />
+            <span>Download Sanitized Video</span>
           </a>
         ) : (
           <span className="text-xs font-mono text-muted-foreground">
