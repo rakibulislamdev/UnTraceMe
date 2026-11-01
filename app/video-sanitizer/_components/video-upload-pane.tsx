@@ -15,6 +15,12 @@ interface VideoUploadPaneProps {
   onReset: () => void;
 }
 
+const ALLOWED_MIME_TYPES = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  "video/x-m4v",
+];
 const ALLOWED_EXTENSIONS = ["mp4", "webm", "mov", "m4v"];
 const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB client-side limit
 
@@ -34,13 +40,17 @@ export function VideoUploadPane({
     setErrorMsg(null);
     const ext = file.name.split(".").pop()?.toLowerCase() || "";
 
-    if (!ALLOWED_EXTENSIONS.includes(ext) && !file.type.startsWith("video/")) {
-      setErrorMsg("Unsupported video format. Only MP4, WebM, MOV, and M4V are supported.");
+    // Strict validation: File extension must be allowed AND (mime type must match or be empty on some OS)
+    const isExtensionAllowed = ALLOWED_EXTENSIONS.includes(ext);
+    const isMimeAllowed = !file.type || ALLOWED_MIME_TYPES.includes(file.type);
+
+    if (!isExtensionAllowed || !isMimeAllowed) {
+      setErrorMsg("Unsupported video format. Only MP4, WebM, and MOV are supported.");
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      setErrorMsg("Video file is too large. Maximum allowed size is 100MB for local browser processing.");
+      setErrorMsg("Video file is too large. Maximum allowed size is 100MB for local processing.");
       return;
     }
 
